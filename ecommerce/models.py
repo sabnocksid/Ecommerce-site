@@ -3,24 +3,24 @@ from django.contrib.auth.models import User
 
 # TimeStampedModel for tracking creation and updates
 class TimeStampedModel(models.Model):
-    created_at = models.DateTimeField(auto_now_add=True) 
-    updated_at = models.DateTimeField(auto_now=True) 
+    created_at = models.DateTimeField(auto_now_add=True)  # Auto-populate when created
+    updated_at = models.DateTimeField(auto_now=True)  # Auto-update on modification
 
     class Meta:
-        abstract = True 
+        abstract = True
 
 
-class Customer(models.Model):
+class Customer(TimeStampedModel):  # Inherits TimeStampedModel for timestamps
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     address = models.TextField()
     city = models.CharField(max_length=100)
 
-
     def __str__(self):
         return self.user.username
 
-# Vendor model for sellers
-class Vendor(models.Model):
+
+# Vendor model for sellers, now with timestamp fields
+class Vendor(TimeStampedModel):  # Inherits TimeStampedModel for timestamps
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     business_name = models.CharField(max_length=255)
     profile_picture = models.ImageField(upload_to="vendor_profile_pictures/%Y/%m/%d", blank=True, null=True)
@@ -30,7 +30,7 @@ class Vendor(models.Model):
 
 
 # Category model for product categories
-class Category(TimeStampedModel):
+class Category(TimeStampedModel):  # Inherits TimeStampedModel for timestamps
     name = models.CharField(max_length=100)
 
     def __str__(self):
@@ -38,7 +38,7 @@ class Category(TimeStampedModel):
 
 
 # Tag model for product tagging
-class Tag(TimeStampedModel):
+class Tag(TimeStampedModel):  # Inherits TimeStampedModel for timestamps
     name = models.CharField(max_length=100)
 
     def __str__(self):
@@ -46,12 +46,12 @@ class Tag(TimeStampedModel):
 
 
 # Product model for eCommerce products
-class Product(TimeStampedModel):
+class Product(TimeStampedModel):  # Inherits TimeStampedModel for timestamps
     AVAILABILITY_CHOICES = [
         ('available', 'Available'),
         ('unavailable', 'Unavailable'),
     ]
-    
+
     name = models.CharField(max_length=255)
     description = models.TextField()
     availability = models.CharField(max_length=30, choices=AVAILABILITY_CHOICES, default="available")
