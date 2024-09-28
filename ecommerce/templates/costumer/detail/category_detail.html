@@ -1,0 +1,30 @@
+{% extends 'home.html' %}
+{% load static %}
+{% block content %}
+<div class="container my-4">
+    <h2 class="text-center">{{ category.name }}</h2>
+    <p class="text-center mb-4">{{ category.description }}</p>
+
+    <div class="row">
+        {% for product in category_products %}
+            <div class="col-md-3 mb-4"> <!-- Adjust the column size based on your design -->
+                <div class="card h-100 shadow-sm">
+                    <img src="{{ product.product_image.url }}" class="card-img-top" alt="{{ product.name }}" height="200px" width="180px">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product.name }}</h5>
+                        <p class="card-text">{{ product.description }}</p>
+                        <p class="card-text"><strong>Price:</strong> {{ product.price }}</p>
+                    </div>
+                    <div class="card-footer text-center">
+                        <a href="{% url 'product_detail' product.id %}" class="btn btn-primary">View Product</a>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12">
+                <h3 class="text-center">No products available in this category.</h3>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock content %}

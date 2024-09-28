@@ -1,0 +1,42 @@
+{% extends 'home.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> 
+<style>
+    .scrollable-description {
+        height: 300px;
+        overflow-y: auto;   /* Enable vertical scrolling */
+        border: 1px solid #ccc; /* Optional: add a border for better visibility */
+        padding: 10px; /* Optional: add some padding */
+    }
+</style>
+
+<div class="container my-4">
+    <h1 class="mb-4"></h1>
+    <div class="row">
+        <div class="col-md-6">
+            <img src="{{ product.product_image.url }}" alt="{{ product.name }}" class="img-fluid">
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <div class="scrollable-description">
+                        <p class="card-text">Category: {{ product.category }}</p>
+                        <p class="card-text">Description: {{ product.description }}</p>
+                    </div>
+                    <p class="card-text">Price: {{ product.price }}</p>
+                    {% if product.on_sale %}
+                    <p class="text-danger">Sale Price: <del>{{ product.sale_price }}</del></p>
+                    {% endif %}
+                </div>
+                <div class="card-footer text-center">
+                    <a href="{% url 'add_to_cart' product.id %}" class="btn btn-primary w-100">
+                        <i class="fa-solid fa-cart-shopping"></i> Add to Cart
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

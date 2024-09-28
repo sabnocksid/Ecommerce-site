@@ -1,0 +1,8 @@
+{% extends 'home.html' %}
+
+{% block content %}
+<h2>Order Confirmation</h2>
+<p>Thank you for your order, {{ order.user.username }}!</p>
+<p>Your order number is: {{ order.id }}</p>
+<p>Total Amount: ${{ order.total_amount }}</p>
+{% endblock %}

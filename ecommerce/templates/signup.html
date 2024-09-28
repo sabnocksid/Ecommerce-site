@@ -1,0 +1,95 @@
+{% extends 'home.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center">Sign Up</h2>
+    {% if messages %}
+        <div class="alert alert-info" role="alert">
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    <form method="POST" class="mt-4 border rounded p-4 bg-light shadow-sm">
+        {% csrf_token %}
+        
+        <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" name="username" id="username" class="form-control" required autofocus maxlength="150" pattern="[A-Za-z0-9@._+-_]+" title="Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.">
+        </div>
+
+        <div class="mb-3">
+            <label for="email" class="form-label">Email address</label>
+            <input type="email" name="email" id="email" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="password1" class="form-label">Password</label>
+            <input type="password" name="password1" id="password1" class="form-control" required minlength="8" pattern=".*[0-9].*" title="Your password must contain at least 8 characters, cannot be entirely numeric, and cannot be a commonly used password.">
+        </div>
+
+        <div class="mb-3">
+            <label for="password2" class="form-label">Password confirmation</label>
+            <input type="password" name="password2" id="password2" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="address" class="form-label">Address</label>
+            <input type="text" name="address" id="address" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="city" class="form-label">City</label>
+            <input type="text" name="city" id="city" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="phone_number" class="form-label">Phone number</label>
+            <input type="text" name="phone_number" id="phone_number" class="form-control" pattern="\d{10}" title="Enter a valid phone number." required>
+        </div>
+
+        <div class="mb-3">
+            <label for="postal_code" class="form-label">Postal code</label>
+            <input type="text" name="postal_code" id="postal_code" class="form-control" required>
+        </div>
+
+        <button type="submit" id="signUp" class="btn btn-primary btn-lg btn-block">Sign Up</button>
+    </form>
+    
+    <p class="mt-3 text-center">Already have an account? <a href="{% url 'login' %}">Log in</a></p>
+</div>
+
+<!-- Optional: Add some custom styles -->
+<style>
+    .container {
+        max-width: 600px;
+    }
+
+    .form-control {
+        border-radius: 0.5rem; /* Rounded borders */
+        width: 100%; /* Full width */
+        padding: 15px; /* More padding */
+        font-size: 16px; /* Larger font size */
+    }
+
+    #signUp {
+        border-radius: 0.5rem; /* Rounded button borders */
+        padding: 15px; /* More padding */
+        font-size: 18px; /* Larger font size for the button */
+        width: 100%;
+    }
+
+    .bg-light {
+        background-color: #f8f9fa !important; /* Light background for the form */
+    }
+
+    .border {
+        border: 1px solid #dee2e6; /* Border for the form */
+    }
+
+    .shadow-sm {
+        box-shadow: 0 .125rem .25rem rgba(0,0,0,.075) !important; /* Small shadow for form */
+    }
+</style>
+{% endblock %}

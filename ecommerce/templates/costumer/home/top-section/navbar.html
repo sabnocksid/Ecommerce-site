@@ -1,0 +1,102 @@
+{% load static %}
+<style>
+    .sidebar {
+        min-height: 100vh; 
+        background-color: #2B2D42; 
+        transition: transform 0.3s ease;
+    }
+    .sidebar a {
+        color: #fff; 
+    }
+    .sidebar.collapsed {
+        transform: translateX(-100%); /* Hide sidebar */
+    }
+    .sidebar-toggle {
+        cursor: pointer;
+    }
+    .navbar-nav {
+        margin-bottom: 0; 
+    }
+    .form-control {
+        width: 200px; 
+        background-color: #fff;
+    }
+    #sidebar-icon:hover {
+        color: #8D99AE;
+    }
+    #CartBtn {
+        background: none;
+        color: #fff;
+        outline: none;
+        border: none;
+        font-size: 20px;
+    }
+    #CartBtn:hover {
+        color: #8D99AE;
+    }
+</style>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container-fluid">
+        <button class="sidebar-toggle btn me-2" type="button">
+            <i class="fa-solid fa-bars" id="sidebar-icon"></i>
+        </button>
+        <a class="navbar-brand" href="#">YourBrand</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <div class="mx-auto text-center"> 
+                <ul class="navbar-nav mb-2">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="{% url 'home' %}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Products</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Contact</a>
+                    </li>
+                </ul>
+                <form class="d-flex justify-content-center mt-2" action="#" method="GET">
+                    <div class="input-group">
+                        <input class="form-control" type="search" name="q" placeholder="Search" aria-label="Search">
+                        <button class="btn btn-outline-success" type="submit">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="text-center">
+            {% if user.is_authenticated %}
+                <p class="text-primary">Welcome, {{ user.username }}!</p>
+                <a href="{% url 'logout' %}" class="btn btn-danger me-2">Logout</a>
+            {% else %}
+                <a href="{% url 'login' %}" class="btn btn-primary me-2">Login</a>
+            {% endif %}
+            <button class="mt-2" id="CartBtn">
+                <a href="{% url 'user_cart' %}" class="btn btn-primary">
+                    <i class="fa fa-cart-shopping"></i> Cart
+                </a>
+            </button>
+        </div>
+    </div>
+</nav>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.querySelector('.sidebar-toggle').addEventListener('click', function() {
+        const sidebar = document.getElementById('sidebar');
+        const icon = document.getElementById('sidebar-icon');
+        sidebar.classList.toggle('collapsed');
+
+        if (sidebar.classList.contains('collapsed')) {
+            icon.classList.remove('fa-solid', 'fa-xmark'); 
+            icon.classList.add('fa-solid', 'fa-bars'); 
+        } else {
+            icon.classList.remove('fa-solid', 'fa-bars');
+            icon.classList.add('fa-solid', 'fa-xmark'); 
+        }
+    });
+</script>

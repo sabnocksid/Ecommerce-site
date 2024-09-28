@@ -1,0 +1,50 @@
+{% load static %}
+{% block content %}
+<style>
+  .btn-color-1 { background-color: #007bff; }  /* Blue */
+.btn-color-2 { background-color: #28a745; }  /* Green */
+.btn-color-3 { background-color: #ffc107; }  /* Yellow */
+.btn-color-4 { background-color: #17a2b8; }  /* Teal */
+.btn-color-5 { background-color: #dc3545; }  /* Red */
+.btn-color-6 { background-color: #6f42c1; }  /* Purple */
+.btn-color-7 { background-color: #e83e8c; }  /* Pink */
+.btn-color-8 { background-color: #fd7e14; }  /* Orange */
+.btn-color-9 { background-color: #20c997; }  /* Light Green */
+.btn-color-10 { background-color: #6610f2; } /* Violet */
+.btn-color-11 { background-color: #0dcaf0; } /* Light Blue */
+.btn-color-12 { background-color: #198754; } /* Dark Green */
+.btn-color-13 { background-color: #c82333; } /* Dark Red */
+.btn-color-14 { background-color: #fd7e14; } /* Dark Orange */
+.btn-color-15 { background-color: #20c997; } /* Dark Teal */
+.btn-color-16 { background-color: #f9c74f; } /* Light Yellow */
+.btn-color-17 { background-color: #90be6d; } /* Mint Green */
+.btn-color-18 { background-color: #f94144; } /* Bright Red */
+.btn-color-19 { background-color: #f3722c; } /* Bright Orange */
+.btn-color-20 { background-color: #f8961e; } /* Bright Yellow */
+
+.btn { 
+    color: white; /* Text color */
+    padding: 10px; 
+    text-align: center; 
+}
+
+</style>
+<h2 class="my-4">Categories</h2>
+<div class="row">
+    {% for category in categories %}
+        <div class="col-md-2 mb-2">  {# Adjust the column size based on your design #}
+            <a href="{% url 'category_detail' category.id %}" 
+               class="btn btn-color-{% if forloop.counter|add:1 <= 20 %}{{ forloop.counter|add:1 }}{% else %}1{% endif %} w-100">
+                {{ category.name }}
+            </a>
+        </div>
+        {% if forloop.counter|divisibleby:6 and not forloop.last %}  {# Close row after every 6 items #}
+            </div><div class="row">
+        {% endif %}
+    {% empty %}
+        <div class="col-12">
+            <p>No categories available.</p>
+        </div>
+    {% endfor %}
+</div>
+{% endblock content %}

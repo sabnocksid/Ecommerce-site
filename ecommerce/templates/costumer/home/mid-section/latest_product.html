@@ -1,0 +1,27 @@
+{% load static %}
+{% block content %}
+<h2 class="mt-4">Latest Products</h2>
+<div class="card-group px-4 pt-4" style="box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5), -2px -2px 5px rgba(0, 0, 0, 0.2) ; ">
+<div class="row">
+    {% for product in latest_products %}
+        <div class="col-md-3 mb-4">
+            <div class="card h-100">
+                <img src="{{ product.product_image.url }}" class="card-img-top" alt="{{ product.name }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <p class="card-text">{{ product.description }}</p>
+                    <p class="card-text">Price: {{ product.price }}</p>
+                </div>
+                <div class="card-footer text-center">
+                    <a href="{% url 'product_detail' product.id %}" class="btn btn-primary">View Product</a>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-12">
+            <h3>No latest products available.</h3>
+        </div>
+    {% endfor %}
+</div>
+</div>
+{% endblock content %}
