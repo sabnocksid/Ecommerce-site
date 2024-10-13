@@ -1,0 +1,71 @@
+{% load static %}
+<!-- Link Swiper's CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+
+<!-- Demo styles -->
+<style>
+  .swiper {
+    width: 680px;
+    height: 440px;
+  }
+
+  .swiper-slide {
+    text-align: center;
+    font-size: 18px;
+    background: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .swiper-slide img {
+    display: block;
+    width: 680px;
+    height: 440px;
+    object-fit: cover;
+  }
+  .mySwiper{
+    margin-top: 100px;
+  }
+</style>
+
+<!-- Swiper -->
+<div class="swiper mySwiper">
+    <div class="swiper-wrapper">
+        {% for offer in offers %}
+            <div class="swiper-slide">
+                <img src="{{ offer.banner.url }}" alt="{{ offer.title }}">
+            </div>
+        {% empty %}
+            <div class="swiper-slide">
+                <img src="{% static 'path/to/default/banner.jpg' %}" alt="No offers available">
+            </div>
+        {% endfor %}
+    </div>
+    <div class="swiper-button-next"></div>
+    <div class="swiper-button-prev"></div>
+    <div class="swiper-pagination"></div>
+</div>
+
+<!-- Swiper JS -->
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+<!-- Initialize Swiper -->
+<script>
+  var swiper = new Swiper(".mySwiper", {
+    spaceBetween: 30,
+    centeredSlides: true,
+    autoplay: {
+      delay: 5000,
+      disableOnInteraction: false,
+    },
+    pagination: {
+      el: ".swiper-pagination",
+      clickable: true,
+    },
+    navigation: {
+      nextEl: ".swiper-button-next",
+      prevEl: ".swiper-button-prev",
+    },
+  });
+</script>

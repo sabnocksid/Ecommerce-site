@@ -36,67 +36,80 @@
     }
 </style>
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top"  style="background-color: #2B2D42;">
     <div class="container-fluid">
-        <button class="sidebar-toggle btn me-2" type="button">
-            <i class="fa-solid fa-bars" id="sidebar-icon"></i>
-        </button>
-        <a class="navbar-brand" href="#">YourBrand</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <div class="mx-auto text-center"> 
-                <ul class="navbar-nav mb-2">
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="{% url 'home' %}">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Products</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Contact</a>
-                    </li>
-                </ul>
-                <form class="d-flex justify-content-center mt-2" action="#" method="GET">
-                    <div class="input-group">
-                        <input class="form-control" type="search" name="q" placeholder="Search" aria-label="Search">
-                        <button class="btn btn-outline-success" type="submit">
-                            <i class="fa-solid fa-magnifying-glass"></i>
-                        </button>
-                    </div>
-                </form>
-            </div>
+        <a class="navbar-brand" href="#">YourBrand</a>
+        <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+            <ul class="navbar-nav mb-2">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="{% url 'home' %}">Home</a>
+                </li>
+                <div class="collapse navbar-collapse">
+                    <ul class="navbar-nav mb-2">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span id="dropdownMenuText">        
+                                {% if category.name %}
+                                    {{ category.name }}
+                                {% else %}
+                                    Categories
+                                {% endif %}
+                            </span> 
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                {% for category in categories %}
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'category_detail' category.id %}" onclick="changeDropdownText('{{ category.name }}')">{{ category.name }}</a>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Refund</a>
+                </li>
+            </ul>
+            <!-- <form class="d-flex justify-content-center ml-4" action="#" method="GET">
+                <div class="input-group">
+                    <input class="form-control" type="search" name="q" placeholder="Search" aria-label="Search">
+                    <button class="btn btn-outline-success" type="submit">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </div>
+            </form> -->
         </div>
         <div class="text-center">
             {% if user.is_authenticated %}
                 <p class="text-primary">Welcome, {{ user.username }}!</p>
-                <a href="{% url 'logout' %}" class="btn btn-danger me-2">Logout</a>
+                <a href="{% url 'logout' %}" class="btn btn-danger me-2">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
             {% else %}
-                <a href="{% url 'login' %}" class="btn btn-primary me-2">Login</a>
+                <a href="{% url 'login' %}" class="btn btn-primary">
+                    <i class="fas fa-sign-in-alt"></i> 
+                </a>
             {% endif %}
             <button class="mt-2" id="CartBtn">
-                <a href="{% url 'user_cart' %}" class="btn btn-primary">
-                    <i class="fa fa-cart-shopping"></i> Cart
+                <a href="{% url 'cart_summary' %}" class="btn btn-primary">
+                    <i class="fa fa-cart-shopping"> 0</i> 
                 </a>
             </button>
         </div>
     </div>
 </nav>
 
+<!-- Bootstrap JS and dependencies -->
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    document.querySelector('.sidebar-toggle').addEventListener('click', function() {
-        const sidebar = document.getElementById('sidebar');
-        const icon = document.getElementById('sidebar-icon');
-        sidebar.classList.toggle('collapsed');
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
-        if (sidebar.classList.contains('collapsed')) {
-            icon.classList.remove('fa-solid', 'fa-xmark'); 
-            icon.classList.add('fa-solid', 'fa-bars'); 
-        } else {
-            icon.classList.remove('fa-solid', 'fa-bars');
-            icon.classList.add('fa-solid', 'fa-xmark'); 
-        }
-    });
-</script>
+<script>
+    function changeDropdownText(selectedCategory) {
+        document.getElementById("dropdownMenuText").innerText = selectedCategory;
+    }
+</script> 

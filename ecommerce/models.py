@@ -26,9 +26,12 @@ class Vendor(TimeStampedModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     business_name = models.CharField(max_length=255)
     profile_picture = models.ImageField(upload_to="vendor_profile_pictures/%Y/%m/%d", blank=True, null=True)
+    address = models.TextField(blank=True)  
+    phone_number = models.CharField(max_length=15, blank=True)  
 
     def __str__(self):
         return self.business_name
+
 
 
 class Category(TimeStampedModel): 
@@ -67,28 +70,19 @@ class Product(TimeStampedModel):
     def __str__(self):
         return self.name
 
-class Cart(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(default=timezone.now)
+class Offer(models.Model):
+    title = models.CharField(max_length=255, help_text="Title or description of the offer")
+    banner = models.ImageField(upload_to='offers/', help_text="Upload banner image (PNG recommended)")
+    start_date = models.DateTimeField(null=True, blank=True, help_text="Offer start date")
+    end_date = models.DateTimeField(null=True, blank=True, help_text="Offer end date")
+    is_active = models.BooleanField(default=True, help_text="Check if the offer is active")
 
     def __str__(self):
-        return f"Cart of {self.user.username}"
+        return self.title
 
-
-class CartItem(models.Model):
-    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField(default=1)
-
-    def __str__(self):
-        return f"{self.product.name} ({self.quantity})"
-
-
-class Order(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    created_at = models.DateTimeField(auto_now_add=True)
-    items = models.ManyToManyField(CartItem)
-
-    def __str__(self):
-        return f"Order {self.id} by {self.user.username}"
+    @property
+    def is_current(self):
+        now = timezone.now()
+        if self.start_date and self.end_date:
+            return self.start_date <= now <= self.end_date
+        return self.is_active

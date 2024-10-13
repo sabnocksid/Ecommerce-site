@@ -5,14 +5,14 @@
 <style>
     .scrollable-description {
         height: 300px;
-        overflow-y: auto;   /* Enable vertical scrolling */
-        border: 1px solid #ccc; /* Optional: add a border for better visibility */
-        padding: 10px; /* Optional: add some padding */
+        overflow-y: auto;   
+        border: 1px solid #ccc; 
+        padding: 10px; 
     }
 </style>
 
 <div class="container my-4">
-    <h1 class="mb-4"></h1>
+    <h1 class="mb-4"><br></h1>
     <div class="row">
         <div class="col-md-6">
             <img src="{{ product.product_image.url }}" alt="{{ product.name }}" class="img-fluid">
@@ -25,18 +25,39 @@
                         <p class="card-text">Category: {{ product.category }}</p>
                         <p class="card-text">Description: {{ product.description }}</p>
                     </div>
-                    <p class="card-text">Price: {{ product.price }}</p>
+                    <p class="card-text text-danger">Price: <del>{{ product.price }}</del></p>
                     {% if product.on_sale %}
-                    <p class="text-danger">Sale Price: <del>{{ product.sale_price }}</del></p>
+                    <p class="text-primary">Sale Price: {{ product.sale_price }}</p>
                     {% endif %}
                 </div>
                 <div class="card-footer text-center">
-                    <a href="{% url 'add_to_cart' product.id %}" class="btn btn-primary w-100">
+                    <button class="btn btn-primary" type="button" value="{{ product.id }}" id="add-cart">
                         <i class="fa-solid fa-cart-shopping"></i> Add to Cart
-                    </a>
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 </div>
+<script>
+    $(document).on('click', '#add-cart', function(e) {
+        e.preventDefault();
+        $.ajax({
+            type: 'POST',
+            url: '{% url "cart_add" %}',
+            data: {
+                product_id: $('#add-cart').val(),
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                action: 'post'
+            },
+            success: function(json) {  
+                console.log(json);
+            },
+            error: function(xhr, errmsg, err) {
+                console.error(errmsg);  
+            }
+        });
+    });
+</script>
+
 {% endblock %}

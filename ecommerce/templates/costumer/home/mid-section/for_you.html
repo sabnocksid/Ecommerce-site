@@ -1,0 +1,35 @@
+<!-- {% load static %}
+{% block content %}
+
+{% if for_you_products %}
+    <h2 class="mt-4 mb-2">Recommended For You</h2>
+    <div class="card-group px-4 pt-4" >
+        <div class="row">
+            {% for product in for_you_products %}
+                <div class="col-md-3 mb-4">
+                    <div class="card h-100" style="box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5), -2px -2px 5px rgba(0, 0, 0, 0.2);">
+                        <img src="{{ product.product_image.url }}" class="card-img-top" alt="{{ product.name }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <p class="card-text">{{ product.description|truncatechars:20 }}...</p>
+                          </div>
+                        <div class="card-footer text-center">
+                            <a href="{% url 'product_detail' product.id %}" class="btn btn-primary">View Product</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}
+<style>
+  .card {
+      transition: transform 0.2s; /* Smooth transition for hover effect */
+  }
+
+  .card:hover {
+      transform: translateY(-5px); 
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3); 
+  }
+</style>
+{% endblock content %} -->
