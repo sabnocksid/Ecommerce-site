@@ -32,7 +32,7 @@
 <h2 class="mt-4 mb-2">Categories</h2>
 <div class="row">
     {% for category in categories %}
-        <div class="col-md-2 mb-2">  {# Adjust the column size based on your design #}
+        <div class="col-md-2 mb-2">  
             <a href="{% url 'category_detail' category.id %}" 
                class="btn btn-color-{% if forloop.counter|add:1 <= 20 %}{{ forloop.counter|add:1 }}{% else %}1{% endif %} w-100">
                 {{ category.name }}

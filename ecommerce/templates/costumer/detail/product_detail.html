@@ -6,39 +6,101 @@
     .scrollable-description {
         height: 300px;
         overflow-y: auto;   
-        border: 1px solid #ccc; 
         padding: 10px; 
+    }
+    .product-container {
+        background-color: #f8f9fa; /* Light background for product details */
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px; /* Space between sections */
+    }
+    .description-container {
+        background-color: #f8f9fa; /* Slightly darker background for description */
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px; /* Space between sections */
+    }
+    .input-group {
+        width: 120px;
+    }
+    .input-group-prepend, .input-group-append {
+        padding: 5px;
+    }
+    .small-input {
+        background: none;
+        border: none;
+        text-align: center; /* Center text in input */
     }
 </style>
 
-<div class="container my-4">
+<div class="container my-4 product-container">
     <h1 class="mb-4"><br></h1>
+    <h6>{{ product.category }} > {{ product.name }}</h6>
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-3">
             <img src="{{ product.product_image.url }}" alt="{{ product.name }}" class="img-fluid">
         </div>
         <div class="col-md-6">
-            <div class="card h-100">
+            <div class="h-100">
                 <div class="card-body">
-                    <h5 class="card-title">{{ product.name }}</h5>
-                    <div class="scrollable-description">
-                        <p class="card-text">Category: {{ product.category }}</p>
-                        <p class="card-text">Description: {{ product.description }}</p>
+                    <h3 class="card-title">{{ product.name }}</h3>
+                    <div class="container">
+                        <div class="rating mt-3">
+                            <span class="text-warning">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="far fa-star"></i> 
+                            </span>
+                            <span class="text-primary">34 Ratings | 10 Reviews</span> 
+                        </div>
+                        <div class="store mt-3">Store: <span class="text-primary">{{ product.vendor }}</span> | <span class="text-success">More from {{ product.vendor }}</span> | <i class="fa fa-message text-success"></i></div>
                     </div>
-                    <p class="card-text text-danger">Price: <del>{{ product.price }}</del></p>
-                    {% if product.on_sale %}
-                    <p class="text-primary">Sale Price: {{ product.sale_price }}</p>
-                    {% endif %}
+                    <p class="card-text text-danger">
+                        {% if product.on_sale %}
+                            <h4 class="text-danger">Rs {{ product.sale_price }}</h4> 
+                            <del>Rs {{ product.price }}</del>
+                            <span class="text-success"> ({{ discount_percentage }}% off)</span>
+                        {% else %}
+                            <h6 class="text-primary">Rs {{ product.price }}</h6>
+                        {% endif %}
+                    </p>
                 </div>
-                <div class="card-footer text-center">
-                    <button class="btn btn-primary" type="button" value="{{ product.id }}" id="add-cart">
-                        <i class="fa-solid fa-cart-shopping"></i> Add to Cart
-                    </button>
+
+                <!-- Quantity Selection -->
+                <div class="d-flex align-items-center my-2">  <!-- Added margin for spacing -->
+                    <span class="mr-2">Quantity:</span>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <button class="btn btn-primary" type="button" id="decrement">-</button>
+                        </div>
+                        <input type="text" class="form-control small-input" id="quantity" value="1" min="1" readonly>
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="button" id="increment">+</button>
+                        </div>
+                    </div>
                 </div>
+
+                <button class="btn btn-danger mt-2" type="button" value="{{ product.id }}" id="add-cart">
+                    <i class="fa-solid fa-cart-shopping"></i> Buy it now
+                </button>
+                <button class="btn btn-primary mt-2" type="button" value="{{ product.id }}" id="add-cart">
+                    <i class="fa-solid fa-cart-shopping"></i> Add to Cart
+                </button>
+
             </div>
         </div>
     </div>
 </div>
+
+<div class="container description-container my-4">
+    <h4>{{ product.name }}</h4>
+    <div class="scrollable-description">
+        <p>{{ product.description }}</p>  <!-- Assuming 'description' is a field in your Product model -->
+    </div>
+</div>
+
 <script>
     $(document).on('click', '#add-cart', function(e) {
         e.preventDefault();
@@ -51,13 +113,26 @@
                 action: 'post'
             },
             success: function(json) {  
-                console.log(json);
+                document.getElementById("cart_quantity").textContent = json.qty;
             },
             error: function(xhr, errmsg, err) {
                 console.error(errmsg);  
             }
         });
     });
-</script>
 
+    $(document).ready(function() {
+        $('#increment').on('click', function() {
+            var quantity = parseInt($('#quantity').val());
+            $('#quantity').val(quantity + 1);
+        });
+
+        $('#decrement').on('click', function() {
+            var quantity = parseInt($('#quantity').val());
+            if (quantity > 1) { 
+                $('#quantity').val(quantity - 1);
+            }
+        });
+    });
+</script>
 {% endblock %}

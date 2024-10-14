@@ -33,7 +33,6 @@ class Vendor(TimeStampedModel):
         return self.business_name
 
 
-
 class Category(TimeStampedModel): 
     name = models.CharField(max_length=100)
 
@@ -43,6 +42,20 @@ class Category(TimeStampedModel):
 
 class Tag(TimeStampedModel): 
     name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+
+class Brand(models.Model):
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
+
+
+class Color(models.Model):
+    name = models.CharField(max_length=50)
 
     def __str__(self):
         return self.name
@@ -66,9 +79,15 @@ class Product(TimeStampedModel):
     tag = models.ManyToManyField(Tag)
     view_count = models.IntegerField(default=0) 
     on_sale = models.BooleanField(default=False)
+    
+    # Foreign key to Brand with a default value of None
+    brand = models.ForeignKey(Brand, on_delete=models.SET_NULL, null=True, blank=True, default=None)
+    
+    colors = models.ManyToManyField(Color, blank=True)  
 
     def __str__(self):
         return self.name
+
 
 class Offer(models.Model):
     title = models.CharField(max_length=255, help_text="Title or description of the offer")
@@ -86,3 +105,14 @@ class Offer(models.Model):
         if self.start_date and self.end_date:
             return self.start_date <= now <= self.end_date
         return self.is_active
+
+
+class Review(models.Model):
+    product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    rating = models.IntegerField()  
+    review_text = models.TextField(blank=True, null=True) 
+    created_at = models.DateTimeField(auto_now_add=True)  
+
+    def __str__(self):
+        return f'Review of {self.product.name} by {self.user.username}'

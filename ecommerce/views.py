@@ -62,11 +62,23 @@ class ProductDetailView(DetailView):
     context_object_name = 'product'
 
     def get(self, request, *args, **kwargs):
-        product = self.get_object()
+        # Call the base implementation first to get the object
+        super().get(request, *args, **kwargs)
+
+        # Now you can access self.object which is the product
+        product = self.object  # Get the product from self.object
         product.view_count += 1  
         product.save()  
-        return super().get(request, *args, **kwargs)
 
+        # Calculate discount percentage
+        discount_percentage = 0
+        if product.on_sale and product.price and product.price > 0:
+            discount_percentage = round(((product.price - product.sale_price) / product.price) * 100, 1)
+
+        context = self.get_context_data(object=product)
+        context['discount_percentage'] = discount_percentage
+
+        return self.render_to_response(context)
 
 class CategoryListView(ListView):
     model = Category
@@ -84,9 +96,14 @@ class CategoryDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        category = self.get_object()
-        context['category_products'] = Product.objects.filter(category=category)
+
+        category = self.get_object()  
         
+        categories = Category.objects.all()  
+        context['categories'] = categories
+
+        context['category_products'] = Product.objects.filter(category=category)
+
         return context
 
 

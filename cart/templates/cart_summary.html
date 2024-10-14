@@ -1,0 +1,65 @@
+{% load static %}
+<style>
+    .cart-summary {
+        margin-top: 20px; /* Margin for the cart summary */
+    }
+
+    .product-image-wrapper {
+        position: relative;
+        overflow: hidden; /* Ensures the button doesn't overflow the image */
+    }
+
+    .product-image-wrapper:hover .view-btn {
+        display: block; /* Show the button on hover */
+    }
+
+    .view-btn {
+        display: none; /* Initially hide the button */
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%); /* Center the button */
+        background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent background for visibility */
+        color: #fff; /* Button text color */
+        padding: 5px 10px; /* Padding for the button */
+        border-radius: 5px; /* Rounded corners */
+        text-align: center; /* Center the text */
+        text-decoration: none; /* No underline */
+    }
+
+    .list-group-item {
+        display: flex; /* Flex layout for list items */
+        align-items: center; /* Center align items */
+    }
+</style>
+
+<div class="cart-summary">
+    <h2>Your Cart</h2>
+    {% if cart_products %}
+        <ul class="list-group mb-3">
+            {% for product in cart_products %}
+                <li class="list-group-item">
+                    <div class="product-image-wrapper" style="width: 100px; height: auto; margin-right: 15px;">
+                        <img src="{{ product.product_image.url }}" alt="{{ product.name }}" class="img-thumbnail" style="width: 100px; height: auto;">
+                        <a href="{% url 'product_detail' product.id %}" class="btn btn-primary view-btn">
+                            <i class="fa fa-eye"></i>
+                        </a>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h5>{{ product.name }}</h5>
+                        {% if product.sale_price %}
+                            <p class="mb-0">
+                                <span style="text-decoration: line-through;">Rs {{ product.price }}</span> <!-- Regular Price -->
+                                <span class="text-danger"> Rs {{ product.sale_price }} </span> <!-- Sale Price -->
+                            </p>
+                        {% else %}
+                            <p class="mb-0">Price: Rs {{ product.price }}</p> <!-- Only Regular Price -->
+                        {% endif %}
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Your cart is empty.</p>
+    {% endif %}
+</div>
