@@ -1,17 +1,22 @@
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import CreateView, ListView, TemplateView, DetailView
-from .models import Product, Category, Customer, Tag, Offer
-from .forms import ProductForm
+from .models import Product, Category, Customer, Tag, Offer, Review
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
 from django.contrib.auth import views as auth_views
-from .forms import SignupForm, VendorRegistrationForm
+from .forms import SignupForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 from django.utils import timezone
+from django.db.models import Avg
+from django.http import JsonResponse
+from django.core.exceptions import ValidationError
+
+
 
 class HomeView(TemplateView):
     template_name = 'home.html'
@@ -32,22 +37,6 @@ class HomeView(TemplateView):
         return context
 
 
-class VendorDashboardView(LoginRequiredMixin, TemplateView):
-    template_name = 'vendor/vendor_dashboard.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['vendor'] = Vendor.objects.get(user=self.request.user)  
-        context['some_data'] = "This is additional data"
-        return context
-
-
-class ProductCreateView(CreateView):
-    model = Product
-    form_class = ProductForm
-    template_name = 'product_form.html'
-    success_url = reverse_lazy('vendor_dashboard') 
-
 
 class ProductCarouselView(ListView):
     model = Product
@@ -58,25 +47,29 @@ class ProductCarouselView(ListView):
 
 class ProductDetailView(DetailView):
     model = Product
-    template_name = 'costumer/detail/product_detail.html'  
+    template_name = 'costumer/detail/product_detail.html'
     context_object_name = 'product'
 
     def get(self, request, *args, **kwargs):
-        # Call the base implementation first to get the object
+        # Call the base implementation to get the object
         super().get(request, *args, **kwargs)
 
-        # Now you can access self.object which is the product
-        product = self.object  # Get the product from self.object
+        product = self.object  # Get the product
         product.view_count += 1  
-        product.save()  
+        product.save()
 
-        # Calculate discount percentage
         discount_percentage = 0
         if product.on_sale and product.price and product.price > 0:
             discount_percentage = round(((product.price - product.sale_price) / product.price) * 100, 1)
 
+        average_rating = product.reviews.aggregate(Avg('rating'))['rating__avg'] or 0
+        reviews = product.reviews.all()
+
         context = self.get_context_data(object=product)
         context['discount_percentage'] = discount_percentage
+        context['average_rating'] = round(average_rating, 1)  
+        context['reviews'] = reviews 
+        context['tags'] = product.tag.all()  
 
         return self.render_to_response(context)
 
@@ -88,6 +81,26 @@ class CategoryListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
+
+class BrandView(ListView):
+    model = Product
+    template_name = 'costumer/detail/brand_list.html'
+    context_object_name = 'products'
+
+    def get_queryset(self):
+        product = get_object_or_404(Product, pk=self.kwargs['pk'])
+        return Product.objects.filter(brand=product.brand)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        product = get_object_or_404(Product, pk=self.kwargs['pk'])
+        brand = product.brand
+        context['brand_name'] = brand.name
+        context['brand_image'] = brand.image.url if brand.image else None
+        context['brand_description'] = brand.description
+        return context
+    
+
 
 class CategoryDetailView(DetailView):
     model = Category
@@ -127,36 +140,6 @@ def signup_view(request):
 
     return render(request, 'signup.html', {'form': form})
 
-def vendor_registration_view(request):
-    if request.method == 'POST':
-        form = VendorRegistrationForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'You are now a vendor, login to add your products.')
-            return redirect('login')
-        else:
-            messages.error(request, 'Please correct the errors below.')
-    else:
-        form = VendorRegistrationForm()
-    return render(request, 'vendor/vendor_registration.html', {'form': form})
-
-class VendorLoginView(View):
-    def get(self, request):
-        return render(request, 'vendor/vendor_login.html')
-
-    def post(self, request):
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        user = authenticate(request, username=username, password=password)
-        
-        if user is not None:
-            login(request, user)
-            messages.success(request, 'Logged in successfully!')
-            return render(request, 'vendor/vendor_dashboard.html')
-  
-        else:
-            messages.error(request, 'Invalid username or password.')
-        return render(request, 'vendor/vendor_login.html')
 
 
 class CustomLoginView(auth_views.LoginView):
@@ -166,3 +149,34 @@ def custom_logout_view(request):
     logout(request)
     messages.success(request, "You have been logged out successfully.")
     return redirect('home') 
+
+@login_required
+def add_review(request):
+    if request.method == 'POST':
+        product_id = request.POST.get('product_id')
+        rating = request.POST.get('rating')
+        review_text = request.POST.get('review_text')
+        
+        # Basic validation
+        if not product_id or not rating or not review_text:
+            return JsonResponse({'success': False, 'message': 'All fields are required.'}, status=400)
+
+        try:
+            # Ensure rating is an integer and within expected range
+            rating = int(rating)
+            if rating < 1 or rating > 5:
+                return JsonResponse({'success': False, 'message': 'Rating must be between 1 and 5.'}, status=400)
+
+            Review.objects.create(
+                user=request.user,
+                product_id=product_id,
+                rating=rating,
+                review_text=review_text
+            )
+            return JsonResponse({'success': True, 'message': 'Review submitted successfully!'})
+        except ValidationError as e:
+            return JsonResponse({'success': False, 'message': str(e)}, status=400)
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': 'Error submitting review: ' + str(e)}, status=500)
+    
+    return JsonResponse({'success': False, 'message': 'Invalid request.'}, status=400)

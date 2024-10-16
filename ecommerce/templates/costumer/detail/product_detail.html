@@ -1,6 +1,8 @@
 {% extends 'home.html' %}
-
 {% block content %}
+{% load custom_tags %}
+
+
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> 
 <style>
     .scrollable-description {
@@ -31,10 +33,36 @@
         border: none;
         text-align: center; /* Center text in input */
     }
-</style>
+    .top-margin {
+        margin-top: 100px;
+        padding-top: 80px; /* Adjust this value for more or less space */
+    }
+    .review-section {
+        background-color: #fff;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 20px;
+    }
+    .review-item {
+        border-bottom: 1px solid #ddd;
+        padding: 10px 0;
+    }
+    .rating-stars {
+    display: flex;
+    cursor: pointer;
+}
 
-<div class="container my-4 product-container">
-    <h1 class="mb-4"><br></h1>
+.rating-stars i {
+    font-size: 24px; /* Adjust size as needed */
+    color: #ddd; /* Default star color */
+    margin-right: 5px; /* Space between stars */
+}
+
+.rating-stars i.selected {
+    color: #f39c12; /* Color for selected stars */
+}
+</style>
+<div class="container my-4 product-container top-margin">
     <h6>{{ product.category }} > {{ product.name }}</h6>
     <div class="row">
         <div class="col-md-3">
@@ -46,49 +74,52 @@
                     <h3 class="card-title">{{ product.name }}</h3>
                     <div class="container">
                         <div class="rating mt-3">
-                            <span class="text-warning">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="far fa-star"></i> 
-                            </span>
-                            <span class="text-primary">34 Ratings | 10 Reviews</span> 
+                            <div id="star-rating" class="star-rating"></div><span class="text-primary">{{ average_rating }} on 5 | {{ reviews|length }} Reviews</span>
                         </div>
-                        <div class="store mt-3">Store: <span class="text-primary">{{ product.vendor }}</span> | <span class="text-success">More from {{ product.vendor }}</span> | <i class="fa fa-message text-success"></i></div>
-                    </div>
-                    <p class="card-text text-danger">
-                        {% if product.on_sale %}
-                            <h4 class="text-danger">Rs {{ product.sale_price }}</h4> 
-                            <del>Rs {{ product.price }}</del>
-                            <span class="text-success"> ({{ discount_percentage }}% off)</span>
-                        {% else %}
-                            <h6 class="text-primary">Rs {{ product.price }}</h6>
-                        {% endif %}
-                    </p>
-                </div>
+                        <div class="store mt-3">Brand:<span><a href="{% url 'brand_products' product.id %}" class="text-primary text-decoration-none fw-bold"> {{ product.brand }}</a></span>
+                        </div>
+                        <p class="card-text text-danger">
+                            {% if product.on_sale %}
+                                <h4 class="text-danger">Rs {{ product.sale_price }}</h4> 
+                                <del>Rs {{ product.price }}</del>
+                                <span class="text-success"> ({{ discount_percentage }}% off)</span>
+                            {% else %}
+                                <h6 class="text-primary">Rs {{ product.price }}</h6>
+                            {% endif %}
+                        </p>
 
-                <!-- Quantity Selection -->
-                <div class="d-flex align-items-center my-2">  <!-- Added margin for spacing -->
-                    <span class="mr-2">Quantity:</span>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <button class="btn btn-primary" type="button" id="decrement">-</button>
-                        </div>
-                        <input type="text" class="form-control small-input" id="quantity" value="1" min="1" readonly>
-                        <div class="input-group-append">
-                            <button class="btn btn-primary" type="button" id="increment">+</button>
+                    </div>
+
+                    <!-- Quantity Controls -->
+                    <div class="d-flex align-items-center my-2">  
+                        <span class="mr-2">Quantity:</span>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <button class="btn btn-primary" type="button" id="decrement">-</button>
+                            </div>
+                            <input type="text" class="form-control small-input" id="quantity" value="1" min="1" readonly>
+                            <div class="input-group-append">
+                                <button class="btn btn-primary" type="button" id="increment">+</button>
+                            </div>
                         </div>
                     </div>
+
+                    <!-- Add to Cart Button -->
+                    <button class="btn btn-primary mt-2 add-cart" type="button" value="{{ product.id }}">
+                        <i class="fa-solid fa-cart-shopping"></i> Add to Cart
+                    </button>
+                    <p id="cart-status" class="text-success mt-2"></p>
                 </div>
-
-                <button class="btn btn-danger mt-2" type="button" value="{{ product.id }}" id="add-cart">
-                    <i class="fa-solid fa-cart-shopping"></i> Buy it now
-                </button>
-                <button class="btn btn-primary mt-2" type="button" value="{{ product.id }}" id="add-cart">
-                    <i class="fa-solid fa-cart-shopping"></i> Add to Cart
-                </button>
-
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card h-80 text-center">
+                <div class="card-body bg-none">
+                    <i class="fa fa-store text-primary fs-1 mb-3"></i>
+                    <h5 class="card-title">Store</h5>
+                    <p class="card-text">{{ product.vendor }}</p>
+                    <a href="#" class="btn btn-primary">Visit</a>
+                </div>
             </div>
         </div>
     </div>
@@ -97,30 +128,63 @@
 <div class="container description-container my-4">
     <h4>{{ product.name }}</h4>
     <div class="scrollable-description">
-        <p>{{ product.description }}</p>  <!-- Assuming 'description' is a field in your Product model -->
+        <div>{{ product.description|safe }}</div>
     </div>
 </div>
 
-<script>
-    $(document).on('click', '#add-cart', function(e) {
-        e.preventDefault();
-        $.ajax({
-            type: 'POST',
-            url: '{% url "cart_add" %}',
-            data: {
-                product_id: $('#add-cart').val(),
-                csrfmiddlewaretoken: '{{ csrf_token }}',
-                action: 'post'
-            },
-            success: function(json) {  
-                document.getElementById("cart_quantity").textContent = json.qty;
-            },
-            error: function(xhr, errmsg, err) {
-                console.error(errmsg);  
-            }
-        });
-    });
+<div class="container review-section">
+    <h4>Reviews</h4>
+    {% if reviews %}
+        {% for review in reviews %}
+            <div class="review-item">
+                <h6>{{ review.user.username }}</h6>
+                <p>{{ review.review_text }}</p>
+                <div>
+                    {% for star in "12345" %}
+                        {% if forloop.counter <= review.rating %}
+                            <i class="fas fa-star text-warning"></i> <!-- Filled Star -->
+                        {% else %}
+                            <i class="far fa-star"></i> <!-- Empty Star -->
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <small class="text-muted">Reviewed on {{ review.created_at|date:"F j, Y" }}</small>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No reviews yet.</p>
+    {% endif %}
+</div>
 
+<div class="container my-4">
+    <h4>Add Your Review</h4>
+    <form id="review-form">
+        <div class="form-group">
+            <label for="rating">Rating:</label>
+            <div class="rating-stars" id="rating" required>
+                <i class="fas fa-star" data-value="1"></i>
+                <i class="fas fa-star" data-value="2"></i>
+                <i class="fas fa-star" data-value="3"></i>
+                <i class="fas fa-star" data-value="4"></i>
+                <i class="fas fa-star" data-value="5"></i>
+            </div>
+            <input type="hidden" id="selected_rating" name="rating" required>
+        </div>
+        <div class="form-group">
+            <label for="review_text">Review:</label>
+            <div class="col-md-5" style="width: 600px;"> 
+            <textarea class="form-control cover" id="review_text" rows="4" style="width: 600px; min-height: 200px;" required></textarea>
+            <button type="submit" class="btn btn-primary mt-2 " style="width: 100%;">Submit Review</button>
+            </div>
+        </div>
+        <p id="review-status" class="text-success mt-2"></p>
+    </form>
+</div>
+
+
+
+
+<script>
     $(document).ready(function() {
         $('#increment').on('click', function() {
             var quantity = parseInt($('#quantity').val());
@@ -129,10 +193,130 @@
 
         $('#decrement').on('click', function() {
             var quantity = parseInt($('#quantity').val());
-            if (quantity > 1) { 
+            if (quantity > 1) {
                 $('#quantity').val(quantity - 1);
             }
         });
+
+        $(document).on('click', '.add-cart', function(e) { 
+            e.preventDefault();
+
+            var productId = $(this).val();
+            var productQty = $('#quantity').val();
+
+            $.ajax({
+                type: 'POST',
+                url: '{% url "cart:add_to_cart" product.id %}',
+                data: {
+                    product_id: productId,
+                    quantity: productQty,
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success: function(response) {
+                    $('#cart-status').text('Product added to cart!');
+                    $('#cart_quantity').text(response.cart_qty);
+                },
+                error: function(xhr, errmsg, err) {
+                    $('#cart-status').text('Error adding product to cart.' + xhr.responseText);
+                    console.error(errmsg);
+                }
+            });
+        });
+    });
+</script>
+<script>
+    $(document).ready(function() {
+        $('#review-form').on('submit', function(e) {
+            e.preventDefault(); // Prevent the form from submitting normally
+
+            var rating = $('#rating').val();
+            var reviewText = $('#review_text').val();
+            var productId = "{{ product.id }}"; // Get the product ID from the context
+
+            $.ajax({
+                type: 'POST',
+                url: '{% url "add_review" %}', // Replace with the correct URL for adding a review
+                data: {
+                    product_id: productId,
+                    rating: rating,
+                    review_text: reviewText,
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success: function(response) {
+                    $('#review-status').text('Review submitted successfully!');
+                    $('#review-form')[0].reset(); // Reset the form
+                    // Optionally, you can add the new review to the reviews section dynamically
+                },
+                error: function(xhr, errmsg, err) {
+                    $('#review-status').text('Error submitting review: ' + xhr.responseText);
+                    console.error(errmsg);
+                }
+            });
+        });
+    });
+</script>
+
+<script>
+    $(document).ready(function() {
+        $('.rating-stars i').on('click', function() {
+    var ratingValue = $(this).data('value');
+    $('#selected_rating').val(ratingValue); 
+    $('.rating-stars i').removeClass('selected');
+    $(this).addClass('selected').prevAll().addClass('selected');
+     });
+
+        $('#review-form').on('submit', function(e) {
+    e.preventDefault(); 
+
+    var rating = $('#selected_rating').val(); // Get the selected rating from the hidden input
+    var reviewText = $('#review_text').val();
+    var productId = "{{ product.id }}"; // Get the product ID from the context
+
+    $.ajax({
+        type: 'POST',
+        url: '{% url "add_review" %}', // Replace with the correct URL for adding a review
+        data: {
+            product_id: productId,
+            rating: rating,
+            review_text: reviewText,
+            csrfmiddlewaretoken: '{{ csrf_token }}',
+        },
+        dataType: 'json', // Expect JSON response
+        success: function(response) {
+            if (response.success) {
+                $('#review-status').text(response.message); // Display success message
+                $('#review-form')[0].reset(); // Reset the form
+                fetchReviews(); // Refresh reviews after successful submission
+            } else {
+                $('#review-status').text('Error: ' + response.message); // Display error message
+            }
+        },
+        error: function(xhr, errmsg, err) {
+            $('#review-status').text('Error submitting review: ' + xhr.responseText);
+            console.error(errmsg);
+        }
+    });
+});
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const avgRating = {{ average_rating }};
+        const starRatingContainer = document.getElementById('star-rating');
+
+        for (let i = 0; i < 5; i++) {
+            const star = document.createElement('i');
+
+            if (i < Math.floor(avgRating)) {
+                star.className = 'fas fa-star';  // Full star
+            } else if (i < avgRating) {
+                star.className = 'fas fa-star-half-alt';  // Half star
+            } else {
+                star.className = 'far fa-star';  // Empty star
+            }
+
+            starRatingContainer.appendChild(star);
+        }
     });
 </script>
 {% endblock %}

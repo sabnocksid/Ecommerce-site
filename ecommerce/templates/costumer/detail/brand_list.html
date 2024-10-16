@@ -1,0 +1,43 @@
+{% extends 'home.html' %}
+{% load static %}
+
+{% block content %}
+
+
+
+<div class="brand-banner pt-4 mb-5">
+    <div class="row align-items-center">
+        <div class="col-md-4 text-center">
+            {% if brand_image %}
+                <img src="{{ brand_image }}" alt="{{ brand_name }}" class="img-fluid" style="max-height: 200px;">
+            {% endif %}
+        </div>
+
+        <div class="col-md-8">
+            <h1>{{ brand_name }}</h1>
+            <p>{{ brand_description }}</p>
+        </div>
+    </div>
+</div>
+
+<h2 class="text-center mb-5">Products from {{ brand_name }}</h2>
+<div class="row">
+    {% for product in products %}
+    <div class="col-md-3 mb-4">
+      <div class="card h-100" style="transition: transform 0.2s; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);">
+          <img src="{{ product.product_image.url }}" class="card-img-top" alt="{{ product.name }}">
+          <div class="card-body">
+              <h5 class="card-title">{{ product.name }}</h5>
+
+              <p class="card-text">Price: {{ product.price }}</p>
+          </div>
+          <div class="card-footer text-center">
+              <a href="{% url 'product_detail' product.id %}" class="btn btn-primary">View Product</a>
+          </div>
+      </div>
+  </div>
+    {% endfor %}
+</div>
+
+
+{% endblock %}

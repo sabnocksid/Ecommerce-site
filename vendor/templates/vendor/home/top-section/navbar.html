@@ -36,8 +36,8 @@
     }
 </style>
 
-<nav class="navbar navbar-expand-lg navbar-dark  fixed-top"  style="background-color: #2B2D42;">
-    <div class="container-fluid" >
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background-color: #2B2D42;">
+    <div class="container-fluid">
         <button class="sidebar-toggle btn me-2" type="button">
             <i class="fa-solid fa-bars" id="sidebar-icon"></i>
         </button>
@@ -46,13 +46,13 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-            <div class="mx-auto text-center"> 
+            <div class="mx-auto text-center">
                 <ul class="navbar-nav mb-2">
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="{% url 'home' %}">Home</a>
+                        <a class="nav-link active" aria-current="page" href="{% url 'vendor_dashboard' %}">Dashboard</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Products</a>
+                        <a class="nav-link" href="{% url 'create_product' %}">Create Product</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#">Contact</a>
@@ -70,17 +70,17 @@
         </div>
         <div class="text-center">
             {% if user.is_authenticated %}
-            <p class="text-primary">Welcome, {{ user.username }}!</p>
-            <a href="{% url 'logout' %}" class="btn btn-danger me-2">
-                <i class="fas fa-sign-out-alt"></i>
-            </a>
-        {% else %}
-=            <a href="{% url 'login' %}" class="btn btn-primary">
-                <i class="fas fa-sign-in-alt"></i> 
-            </a>
-        {% endif %}
+                <p class="text-primary">Welcome, {{ user.username }} !</p>
+                <a href="{% url 'vendor_logout' %}" class="btn btn-danger me-2">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            {% else %}
+                <a href="{% url 'vendor_login' %}" class="btn btn-primary">
+                    <i class="fas fa-sign-in-alt"></i> 
+                </a>
+            {% endif %}
             <button class="mt-2" id="CartBtn">
-                <a href="{% url 'product_create' %}" class="btn btn-primary">
+                <a href="{% url 'create_product' %}" class="btn btn-primary">
                     <i class="fa fa-add"></i> 
                 </a>
             </button>

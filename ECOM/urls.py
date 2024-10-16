@@ -21,8 +21,11 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('django_summernote/', include('django_summernote.urls')),
     path('',include("ecommerce.urls")),
     path('cart/',include("cart.urls")),
+    path('vendor/',include("vendor.urls")),
+
 
 ]
 if settings.DEBUG:

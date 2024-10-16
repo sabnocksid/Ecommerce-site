@@ -1,0 +1,159 @@
+{% extends 'vendor/vendor_dashboard.html' %}
+{% load static %}
+{% load form_extras %}
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>Create Product</title>
+    <link rel="stylesheet" href="{% static 'django_summernote/summernote.css' %}">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    {% block content %}
+    <div class="container mt-5 pt-4">
+        <h2 class="text-center">Create Product</h2>
+
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data" class="border p-4 rounded shadow-sm bg-light" action="{% url 'create_product' %}">
+            {% csrf_token %}
+            <div class="row">
+                <div class="form-group col-md-4">
+                    <label for="id_name">Product Name</label>
+                    {{ form.name|add_class:"form-control" }}
+                    {% if form.name.errors %}
+                        <div class="text-danger">{{ form.name.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="id_availability">Availability</label>
+                    {{ form.availability|add_class:"form-control" }}
+                    {% if form.availability.errors %}
+                        <div class="text-danger">{{ form.availability.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="id_price">Price</label>
+                    {{ form.price|add_class:"form-control" }}
+                    {% if form.price.errors %}
+                        <div class="text-danger">{{ form.price.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-md-4">
+                    <label for="id_sale_price">Sale Price</label>
+                    {{ form.sale_price|add_class:"form-control" }}
+                    {% if form.sale_price.errors %}
+                        <div class="text-danger">{{ form.sale_price.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="id_stock">Stock</label>
+                    {{ form.stock|add_class:"form-control" }}
+                    {% if form.stock.errors %}
+                        <div class="text-danger">{{ form.stock.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="id_color">Color</label>
+                    {{ form.color|add_class:"form-control" }}
+                    {% if form.color.errors %}
+                        <div class="text-danger">{{ form.color.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-md-4">
+                    <label for="id_brand">Brand</label>
+                    {{ form.brand|add_class:"form-control" }}
+                    {% if form.brand.errors %}
+                        <div class="text-danger">{{ form.brand.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="id_category">Category</label>
+                    {{ form.category|add_class:"form-control" }}
+                    {% if form.category.errors %}
+                        <div class="text-danger">{{ form.category.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="id_tag">Tag</label>
+                    {{ form.tag|add_class:"form-control" }}
+                    {% if form.tag.errors %}
+                        <div class="text-danger">{{ form.tag.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-md-4">
+                    <label for="id_product_image">Product Image</label>
+                    {{ form.product_image }}
+                    {% if form.product_image.errors %}
+                        <div class="text-danger">{{ form.product_image.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="id_on_sale">On Sale</label>
+                    {{ form.on_sale }}  <!-- Checkbox field -->
+                    {% if form.on_sale.errors %}
+                        <div class="text-danger">{{ form.on_sale.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="id_description">Description</label>
+                {{ form.description }}  <!-- Summernote Widget -->
+                {% if form.description.errors %}
+                    <div class="text-danger">{{ form.description.errors }}</div>
+                {% endif %}
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Save</button>
+        </form>
+    </div>
+
+    <!-- Load JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>  
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'django_summernote/summernote.js' %}"></script>  
+    <script>
+        $(document).ready(function() {
+            // Initialize Summernote
+            $('.summernote').summernote({
+                height: 300,
+                toolbar: [
+                    ['style', ['bold', 'italic', 'underline', 'clear']],
+                    ['font', ['strikethrough', 'superscript', 'subscript']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['table', ['table']],
+                    ['insert', ['link', 'picture', 'video']],
+                    ['view', ['fullscreen', 'codeview', 'help']]
+                ]
+            });
+
+            // Initial check for sale price input
+            const onSaleCheckbox = document.getElementById('id_on_sale'); 
+            const salePriceInput = document.getElementById('id_sale_price'); 
+
+            function toggleSalePriceInput() {
+                salePriceInput.disabled = !onSaleCheckbox.checked; 
+                if (!onSaleCheckbox.checked) {
+                    salePriceInput.value = ''; 
+                }
+            }
+
+            toggleSalePriceInput(); 
+            onSaleCheckbox.addEventListener('change', toggleSalePriceInput);
+        });
+    </script>
+</body>
+{% endblock content %}

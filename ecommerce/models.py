@@ -47,15 +47,10 @@ class Tag(TimeStampedModel):
         return self.name
 
 
-class Brand(models.Model):
-    name = models.CharField(max_length=255)
-
-    def __str__(self):
-        return self.name
-
-
-class Color(models.Model):
-    name = models.CharField(max_length=50)
+class Brand(TimeStampedModel):
+    name = models.CharField(max_length=100, unique=True, help_text="Name of the brand")
+    image = models.ImageField(upload_to='brands/', help_text="Upload brand image")
+    description = models.TextField(blank=True, help_text="Description of the brand")
 
     def __str__(self):
         return self.name
@@ -77,13 +72,10 @@ class Product(TimeStampedModel):
     vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE)  
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     tag = models.ManyToManyField(Tag)
+    brand = models.ForeignKey(Brand, on_delete=models.CASCADE, null=True, blank=True)  # Foreign key to Brand
     view_count = models.IntegerField(default=0) 
     on_sale = models.BooleanField(default=False)
-    
-    # Foreign key to Brand with a default value of None
-    brand = models.ForeignKey(Brand, on_delete=models.SET_NULL, null=True, blank=True, default=None)
-    
-    colors = models.ManyToManyField(Color, blank=True)  
+    color = models.CharField(max_length=50, blank=True)  
 
     def __str__(self):
         return self.name
@@ -108,11 +100,11 @@ class Offer(models.Model):
 
 
 class Review(models.Model):
-    product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name='reviews')
+    product = models.ForeignKey('Product', related_name='reviews', on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    rating = models.IntegerField()  
-    review_text = models.TextField(blank=True, null=True) 
-    created_at = models.DateTimeField(auto_now_add=True)  
+    rating = models.PositiveIntegerField()  
+    review_text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'Review of {self.product.name} by {self.user.username}'
+        return f"{self.user.username}'s review on {self.product.name}"
