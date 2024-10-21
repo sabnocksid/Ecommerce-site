@@ -1,0 +1,12 @@
+{% extends 'vendor/vendor_dashboard.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Are you sure you want to delete {{ product.name }}?</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Delete</button>
+        <a href="/" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

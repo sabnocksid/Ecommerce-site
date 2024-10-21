@@ -23,7 +23,19 @@
               </div>
           {% endif %}
               {% block content %}
+              <div id="product">
+              {% include "vendor/home/mid-section/product_lists.html" %}
+            </div>
 
+            <div id="brand">
+              {% include "vendor/brand_list.html" %}
+            </div>
+            <div id="category">
+              {% include "vendor/category_list.html" %}
+              </div>
+              <div id="tag">
+              {% include "vendor/tag_list.html" %}
+              </div>
               {% endblock content %}
           </main>
       </div>

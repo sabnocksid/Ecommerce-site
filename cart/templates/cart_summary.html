@@ -53,7 +53,6 @@
             {% endif %}
         </div>
 
-<!-- Total Section on the Right -->
 <div class="col-md-4 mt-5">
     {% if cart %}
     <div class="card">
@@ -65,7 +64,7 @@
                 <h4><strong>Total:</strong> Rs {{ total.total }}</h4>
             </div>
             <div class="card-footer text-center " style="background: none;">
-                <form action="{% url 'cart:checkout' %}" method="POST">
+                <form action="{% url 'cart:create_order' %}" method="POST">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-primary btn-block">Checkout</button>
                 </form>

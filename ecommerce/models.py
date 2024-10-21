@@ -77,6 +77,14 @@ class Product(TimeStampedModel):
     on_sale = models.BooleanField(default=False)
     color = models.CharField(max_length=50, blank=True)  
 
+    def save(self, *args, **kwargs):
+        if self.stock <= 0:
+            self.availability = 'unavailable'
+            self.stock = 0  
+        else:
+            self.availability = 'available'
+        super(Product, self).save(*args, **kwargs)
+
     def __str__(self):
         return self.name
 

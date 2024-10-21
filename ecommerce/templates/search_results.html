@@ -1,0 +1,27 @@
+{% extends "home.html" %}
+{% block content %}
+
+    <div class="container mt-5 pt-5">
+      <h2>Search Results for "{{ query }}"</h2>
+  
+      {% if products %}
+      <div class="row ">
+          {% for product in products %}
+          <div class="col-md-4 mb-5">
+              <div class="card">
+                  <img src="{{ product.product_image.url }}" alt="{{ product.name }}" class="card-img-top">
+                  <div class="card-body">
+                      <h5>{{ product.name }}</h5>
+                      <h5>{{ product.price }}</h5>
+                      <a href="{% url 'product_detail' product.id %}" class="btn btn-primary">View Product</a>
+                  </div>
+              </div>
+          </div>
+          {% endfor %}
+      </div>
+      {% endif %}
+  
+
+    
+</div>
+{% endblock %}

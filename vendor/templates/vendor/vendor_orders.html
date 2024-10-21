@@ -1,0 +1,61 @@
+{% extends 'vendor/vendor_dashboard.html' %}
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center">All Orders</h2>
+
+    {% if orders %}
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>User</th>
+                    <th>Product ID</th>
+                    <th>Product Name</th>
+                    <th>Quantity</th>
+                    <th>Total Amount</th>
+                    <th>Payment Method</th>
+                    <th>Payment Status</th>
+                    <th>Shipping Address</th>
+                    <th>Date</th>
+                    <th>Shipment Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                    {% for item in order.items.all %}
+                    <tr>
+                        <td>{{ order.id }}</td>
+                        <td>{{ order.user.username }}</td>
+                        <td>{{ item.product.id }}</td>
+                        <td>{{ item.product.name }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>${{ order.total_amount }}</td>
+                        <td>{{ order.payment_method }}</td>
+                        <td>{{ order.payment_status }}</td>
+                        <td>{{ order.shipping_address }}</td>
+                        <td>{{ order.created_at|date:"Y-m-d H:i:s" }}</td>
+                        <td>
+                            <form method="POST" action="{% url 'vendor:update_shipment_status' order.id %}">
+                                {% csrf_token %}
+                                <select name="shipment_status" class="form-control">
+                                    <option value="Pending" {% if order.shipment_status == 'Pending' %}selected{% endif %}>Pending</option>
+                                    <option value="Shipped" {% if order.shipment_status == 'Shipped' %}selected{% endif %}>Shipped</option>
+                                    <option value="Delivered" {% if order.shipment_status == 'Delivered' %}selected{% endif %}>Delivered</option>
+                                    <option value="Canceled" {% if order.shipment_status == 'Canceled' %}selected{% endif %}>Canceled</option>
+                                </select>
+                        </td>
+                        <td>
+                                <button type="submit" class="btn btn-primary">Update</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="text-center">No orders found.</p>
+    {% endif %}
+</div>
+{% endblock %}

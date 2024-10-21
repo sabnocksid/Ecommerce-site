@@ -11,9 +11,9 @@
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script> 
 </head>
 <body class="d-flex flex-column "> 
-    <div class="container-fluid px-0"> <!-- Use container-fluid for full width -->
-        <div class="row no-gutters"> <!-- Remove gutters between columns -->
-            <div class="col-12"> <!-- Full width column -->
+    <div class="container-fluid px-0"> 
+        <div class="row no-gutters"> 
+            <div class="col-12"> 
                 <div class="card" style="box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);margin-top:100px; height: 100px; background-color: #f8f9fa;">
                     <h1 class="text-center mt-3">Shopping Cart</h1>
                 </div>
@@ -22,7 +22,7 @@
     </div>
     {% include "costumer/home/top-section/navbar.html" %}
 
-    <div class="container-fluid flex-grow-1"> <!-- Allow the container to grow -->
+    <div class="container-fluid flex-grow-1"> 
         <div class="row">
             <main class="col-md-9 ms-sm-auto col-lg-12 pt-4 mt-2">
                 {% if messages %}

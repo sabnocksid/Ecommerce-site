@@ -29,16 +29,16 @@
 }
 
 </style>
-<h2 class="mt-4 mb-2">Categories</h2>
+<h2 class="mt-4 mb-2" style="margin-left: 20px;">Categories</h2>
 <div class="row">
     {% for category in categories %}
-        <div class="col-md-2 mb-2">  
-            <a href="{% url 'category_detail' category.id %}" 
-               class="btn btn-color-{% if forloop.counter|add:1 <= 20 %}{{ forloop.counter|add:1 }}{% else %}1{% endif %} w-100">
-                {{ category.name }}
-            </a>
+        <div class="col-md-3 mb-2 px-4 py-2"> 
+           <a href="{% url 'category_detail' category.id %}" 
+                        class="btn btn-color-{% if forloop.counter|add:1 <= 20 %}{{ forloop.counter|add:1 }}{% else %}1{% endif %} w-100">
+                         {{ category.name }}
+                     </a>
         </div>
-        {% if forloop.counter|divisibleby:6 and not forloop.last %}  {# Close row after every 6 items #}
+        {% if forloop.counter|divisibleby:6 and not forloop.last %} 
             </div><div class="row">
         {% endif %}
     {% empty %}

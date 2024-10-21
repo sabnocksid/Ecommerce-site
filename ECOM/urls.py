@@ -24,7 +24,7 @@ urlpatterns = [
     path('django_summernote/', include('django_summernote.urls')),
     path('',include("ecommerce.urls")),
     path('cart/',include("cart.urls")),
-    path('vendor/',include("vendor.urls")),
+    path('vendor/',include("vendor.urls", namespace='vendor')),
 
 
 ]

@@ -1,0 +1,40 @@
+{% extends 'vendor/vendor_dashboard.html' %}
+{% load static %}
+{% load form_extras %}
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>Add Brand</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    {% block content %}
+    <div class="container mt-5 pt-4">
+        <h2 class="text-center">Add New Brand</h2>
+
+        <form method="post" enctype="multipart/form-data" class="border p-4 rounded shadow-sm bg-light" action="{% url 'vendor:add_brand' %}">
+            {% csrf_token %}
+            <div class="row">
+                <div class="form-group col-md-6">
+                    <label for="id_name">Brand Name</label>
+                    <input type="text" id="id_name" name="name" class="form-control" required>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="id_image">Brand Image</label>
+                    <input type="file" id="id_image" name="image" class="form-control" accept="image/*" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="id_description">Description</label>
+                <textarea id="id_description" name="description" class="form-control" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Brand</button>
+            <a href="{% url 'vendor:brand_list' %}" class="btn btn-secondary">Back to Brand List</a>
+        </form>
+    </div>
+    {% endblock %}
+</body>
+</html>

@@ -1,0 +1,41 @@
+{% extends 'home.html' %}
+
+{% block content %}
+
+<div class="container mt-5">
+    <h2 class="text-center">Order Details</h2>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4 class="mb-0">Order ID: {{ order.id }}</h4>
+        </div>
+        <div class="card-body">
+            <h5>Total Amount: Rs {{ order.total_amount }}</h5>
+            <h5>Shipping Address: {{ order.shipping_address }}</h5>
+            <h5>Payment Method: {{ order.payment_method }}</h5>
+            <h5>Shipment Status: {{ order.shipment_status }}</h5>
+            <h5>Date: {{ order.created_at }}</h5>
+        </div>
+    </div>
+
+    <h4>Order Items:</h4>
+    {% if order.items.count > 0 %}
+        <ul class="list-group mb-4">
+            {% for item in order.items.all %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                         <h3 class="text-primary">{{ item.product.name }}</h3> 
+                        <img src="{{ item.product.product_image.url }}" alt="{{ item.product.name }}" style="width: 50px; height: auto; margin-right: 10px;">
+                    </div>
+                    <span>Quantity: {{ item.quantity }} - Price: Rs{{ item.total_price }}</span>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <div class="alert alert-warning">No items in this order.</div>
+    {% endif %}
+
+    <a href="{% url 'cart:order_detail' %}" class="btn btn-primary">Back to Your Orders</a>
+</div>
+
+{% endblock %}

@@ -1,11 +1,12 @@
 {% load static %}
 {% block content %}
-<h2 class="mt-4 mb-2">Products on Sale</h2>
+<h2 class="mt-4 mb-2" style="margin-left: 20px;">On Sale Now</h2>
 <div class="card-group px-4 pt-4">
     <div class="row">
         {% for product in sale_products %}
             <div class="col-md-3 mb-4">
                 <div class="card h-100" style="transition: transform 0.2s; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);">
+                    <h5 class="text-capitalize btn btn-success" style="position: absolute; margin-left: 230px; margin-top: 10px;" >On Sale <i class="fa fa-fire text-warning"></i></h5>
                     <img src="{{ product.product_image.url }}" class="card-img-top" alt="{{ product.name }}">
                     <div class="card-body">
                         <h5 class="card-title">{{ product.name }}</h5>

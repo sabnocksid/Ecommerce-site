@@ -1,12 +1,60 @@
 {% load static %}
-<!-- Link Swiper's CSS -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 
-<!-- Demo styles -->
 <style>
+  .container {
+    margin-top: 100px;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .swiper-container {
+    width: 60%; /* Adjust the width to accommodate the search forms */
+  }
+
+  .search-container {
+    width: 35%;
+    margin-left: 20px;
+    position: relative; /* Set position relative for the dropdown menu */
+  }
+
+  .search-form {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 10px; /* Reduced margin for closer spacing */
+  }
+
+  .dropdown-menu {
+    background-color: #fff; /* Background color of dropdown */
+    border: 1px solid #ccc; /* Optional border for clarity */
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    position: absolute; /* Positioning it absolutely */
+    z-index: 1000; /* Ensure dropdown appears above other elements */
+    width: 100%; /* Full width under the search form */
+    display: none; /* Initially hidden */
+  }
+
+  .dropdown-menu.show {
+    display: block; /* Show dropdown when needed */
+  }
+
+  .dropdown-item {
+    padding: 10px 15px; /* Padding for dropdown items */
+    text-decoration: none; /* Remove underline */
+    color: #333; /* Text color */
+  }
+
+  .dropdown-item:hover {
+    background-color: #f0f0f0; /* Hover effect */
+  }
+
   .swiper {
-    width: 1080px;
-    height: 540px;
+    width: 100%;
+    height: 475px;
   }
 
   .swiper-slide {
@@ -14,47 +62,133 @@
     font-size: 18px;
     background: #fff;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
+  }
+
+  .swiper-slide:hover {
+    transform: scale(1.05);
   }
 
   .swiper-slide img {
     display: block;
-    width: 1080px;
-    height: 540px;
+    width: 100%;
+    height: 400px;
     object-fit: cover;
+    border-radius: 8px 8px 0 0; /* Round top corners of the image */
   }
-  .mySwiper{
-    margin-top: 100px;
+
+  .countdown {
+    font-size: 18px;
+    font-weight: bold;
+    color: #FF0000;
+    margin-top: 10px;
+    white-space: nowrap;
+  }
+
+  .search-form h4 {
+    font-size: 24px;
+    margin-bottom: 15px;
+    color: #2B2D42; 
+  }
+
+  .search-form input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px; /* Increased font size for better readability */
+  }
+
+  .search-form button {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff; /* Bootstrap primary color */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    transition: background-color 0.3s;
+  }
+
+  .search-form button:hover {
+    background-color: #0056b3; /* Darker shade for hover effect */
+  }
+
+  .dropdown-menu {
+    background-color: #f8f9fa; /* Consistent with the search form */
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .dropdown-item:hover {
+    background-color: #e9ecef; /* Light hover effect */
   }
 </style>
 
-<!-- Swiper -->
-<div class="swiper mySwiper">
-    <div class="swiper-wrapper">
+<div class="container">
+  <div class="swiper-container">
+    <div class="swiper mySwiper">
+      <div class="swiper-wrapper">
         {% for offer in offers %}
-            <div class="swiper-slide">
-                <img src="{{ offer.banner.url }}" alt="{{ offer.title }}">
-            </div>
+        <div class="swiper-slide">
+          <img src="{{ offer.banner.url }}" alt="{{ offer.title }}">
+          <div class="countdown" id="countdown-{{ forloop.counter }}"></div>
+        </div>
         {% empty %}
-            <div class="swiper-slide">
-                <img src="{% static 'path/to/default/banner.jpg' %}" alt="No offers available">
-            </div>
+        <div class="swiper-slide">
+          <img src="{% static 'path/to/default/banner.jpg' %}" alt="No offers available">
+          <div class="countdown">No offers available</div>
+        </div>
         {% endfor %}
+      </div>
+      <div class="swiper-button-next"></div>
+      <div class="swiper-button-prev"></div>
+      <div class="swiper-pagination"></div>
     </div>
-    <div class="swiper-button-next"></div>
-    <div class="swiper-button-prev"></div>
-    <div class="swiper-pagination"></div>
+
+  </div>
+
+  <div class="search-container">
+    <form method="GET" action="{% url 'search' %}" class="search-form">
+      <h4>Search Products</h4>
+      <input type="text" name="query" placeholder="Search for products by name or description..." required>
+      <button type="submit">Search</button>
+    </form>
+    <div class="search-container" style="width:400px; background: none;">
+      <div class="search-form" style="background: #fff; box-shadow: none;">
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="categoryDropdown" data-bs-toggle="dropdown" aria-expanded="false" >
+          Browse Category
+        </button>
+        
+        <ul class="dropdown-menu" aria-labelledby="categoryDropdown">
+          {% for category in categories %}
+          <li>
+            <a class="dropdown-item" href="{% url 'category_detail' category.id %}" onclick="changeDropdownText('{{ category.name }}')">{{ category.name }}</a>
+          </li>
+          {% empty %}
+          <li><a class="dropdown-item" href="#">No categories available</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+    
+  </div>
+
 </div>
 
 <!-- Swiper JS -->
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
-<!-- Initialize Swiper -->
 <script>
   var swiper = new Swiper(".mySwiper", {
     spaceBetween: 30,
-    centeredSlides: true,
+    centeredSlides: false,
     autoplay: {
       delay: 5000,
       disableOnInteraction: false,
@@ -68,4 +202,28 @@
       prevEl: ".swiper-button-prev",
     },
   });
+
+  {% for offer in offers %}
+    (function() {
+      var countDownDate = new Date("{{ offer.end_date|date:'Y-m-d H:i:s' }}").getTime();
+      var countdownElement = document.getElementById("countdown-{{ forloop.counter }}");
+
+      var countdownFunction = setInterval(function() {
+        var now = new Date().getTime();
+        var distance = countDownDate - now;
+
+        var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        countdownElement.innerHTML = days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
+
+        if (distance < 0) {
+          clearInterval(countdownFunction);
+          countdownElement.innerHTML = "Offer has ended!";
+        }
+      }, 1000);
+    })();
+  {% endfor %}
 </script>

@@ -1,0 +1,30 @@
+{% extends 'vendor/vendor_dashboard.html' %}
+{% load static %}
+{% load form_extras %}
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>Add Tag</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    {% block content %}
+    <div class="container mt-5 pt-4">
+        <h2 class="text-center">Add New Tag</h2>
+
+        <form method="post" class="border p-4 rounded shadow-sm bg-light" action="{% url 'vendor:add_tag' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="id_name">Tag Name</label>
+                <input type="text" id="id_name" name="name" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Tag</button>
+            <a href="{% url 'vendor:tag_list' %}" class="btn btn-secondary">Back to Tag List</a>
+        </form>
+    </div>
+    {% endblock %}
+</body>
+</html>

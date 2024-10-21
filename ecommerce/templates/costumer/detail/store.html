@@ -1,0 +1,44 @@
+{% extends 'home.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="store-banner pt-4 mb-5">
+    <div class="row align-items-center">
+        <!-- Vendor Profile Picture -->
+        <div class="col-md-4 text-center">
+            {% if profile_picture %}
+                <img src="{{ profile_picture.url }}" alt="{{ business_name }}" class="img-fluid rounded-circle" style="max-height: 200px; border: 2px solid #8D99AE;">
+            {% endif %}
+        </div>
+
+        <!-- Vendor Info -->
+        <div class="col-md-8">
+            <h1 class="display-4">{{ business_name }}</h1>
+            <h5 class="mt-4"><i class="fas fa-map-marker-alt"></i> {{ address }}</h5>
+            <h5><i class="fas fa-phone-alt"></i> {{ phone_number }}</h5>
+        </div>
+    </div>
+</div>
+
+<h2 class="text-center mb-5">Products Offered by {{ business_name }}</h2>
+<div class="row">
+    {% for product in products %}
+    <div class="col-md-3 mb-4">
+        <div class="card h-100" style="transition: transform 0.2s; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);">
+            <img src="{{ product.product_image.url }}" class="card-img-top" alt="{{ product.name }}">
+            <div class="card-body">
+                <h5 class="card-title">{{ product.name }}</h5>
+                <p class="card-text">Price: ${{ product.price }}</p>
+            </div>
+            <div class="card-footer text-center">
+                <a href="{% url 'product_detail' product.id %}" class="btn btn-primary">View Product</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+        <p class="text-center">No products available from this vendor.</p>
+    {% endfor %}
+</div>
+
+{% endblock %}

@@ -24,16 +24,45 @@
                 </div>
             {% endif %}
                 {% block content %}
+                <div id="offers">
                     {% include "costumer/home/mid-section/offer.html" %}
-                    {% include "costumer/home/mid-section/product_carousel.html" %}
-                    {% include "costumer/home/mid-section/categories_list.html" %}
-                    {% include "costumer/home/mid-section/latest_product.html" %}
-                    {% include "costumer/home/mid-section/for_you.html" %}
+                </div>
+
+                <div id="trending-products">
                     {% include "costumer/home/mid-section/trending_products.html" %}
+                </div>
+                
+                <div id="product-carousel">
+                    {% include "costumer/home/mid-section/product_carousel.html" %}
+                </div>
+                
+                <div id="categories">
+                    {% include "costumer/home/mid-section/categories_list.html" %}
+                </div>
+
+                <div id="recommended-products">
+                    {% include "costumer/home/mid-section/for_you.html" %}
+                </div>
+                
+                <div id="latest-products">
+                    {% include "costumer/home/mid-section/latest_product.html" %}
+                </div>
+                              
                 {% endblock content %}
             </main>
         </div>
     </div>
+
+    <style>
+        .card {
+            transition: transform 0.2s; /* Smooth transition for hover effect */
+        }
+    
+        .card:hover {
+            transform: translateY(-5px); 
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3); 
+        }
+    </style>
 
     {% include "costumer/home/bottom-section/footer.html" %}
     

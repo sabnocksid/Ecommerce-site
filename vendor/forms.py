@@ -2,7 +2,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from ecommerce.models import Product, Vendor  
+from ecommerce.models import Product, Vendor, Brand, Category, Tag  
 from django_summernote.widgets import SummernoteWidget
 
 class ProductForm(forms.ModelForm):
@@ -50,3 +50,19 @@ class VendorRegistrationForm(UserCreationForm):
                 address=self.cleaned_data['address']  
             )
         return user
+
+
+class BrandForm(forms.ModelForm):
+    class Meta:
+        model = Brand
+        fields = ['name', 'image', 'description']
+
+class CategoryForm(forms.ModelForm):
+    class Meta:
+        model = Category
+        fields = ['name']
+
+class TagForm(forms.ModelForm):
+    class Meta:
+        model = Tag
+        fields = ['name']

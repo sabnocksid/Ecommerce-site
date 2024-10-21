@@ -1,19 +1,27 @@
 {% extends 'home.html' %}
 {% load static %}
 {% block content %}
-<div class="container my-4">
-    <h2 class="text-center">{{ category.name }}</h2>
+<div class="container my-4 mt-5">
+    <br>
+    <h2 class="text-center ">{{ category.name }}</h2>
     <p class="text-center mb-4">{{ category.description }}</p>
 
     <div class="row">
         {% for product in category_products %}
             <div class="col-md-3 mb-4"> <!-- Adjust the column size based on your design -->
                 <div class="card h-100 shadow-sm">
-                    <img src="{{ product.product_image.url }}" class="card-img-top" alt="{{ product.name }}" height="200px" width="180px">
+                    <img src="{{ product.product_image.url }}" class="card-img-top" alt="{{ product.name }}">
                     <div class="card-body">
                         <h5 class="card-title">{{ product.name }}</h5>
-                        <p class="card-text">{{ product.description|truncatechars:20 }}...</p>
-                        <p class="card-text"><strong>Price:</strong> {{ product.price }}</p>
+                        <p class="card-text text-danger">
+                            {% if product.on_sale %}
+                                <h4 class="text-danger">Rs {{ product.sale_price }}</h4> 
+                                <del>Rs {{ product.price }}</del>
+                                <span class="text-success"> ({{ discount_percentage }}% off)</span>
+                            {% else %}
+                                <h6 class="text-primary">Rs {{ product.price }}</h6>
+                            {% endif %}
+                        </p>
                     </div>
                     <div class="card-footer text-center">
                         <a href="{% url 'product_detail' product.id %}" class="btn btn-primary">View Product</a>

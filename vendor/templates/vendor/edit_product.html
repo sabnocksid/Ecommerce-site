@@ -14,7 +14,7 @@
 <body>
     {% block content %}
     <div class="container mt-5 pt-4">
-        <h2 class="text-center">Create Product</h2>
+        <h2 class="text-center">Edit Product</h2>
 
         {% if form.non_field_errors %}
             <div class="alert alert-danger">
@@ -22,8 +22,8 @@
             </div>
         {% endif %}
 
-        <form method="post" enctype="multipart/form-data" class="border p-4 rounded shadow-sm bg-light" action="{% url 'vendor:create_product' %}">
-            {% csrf_token %}
+        <form method="post" enctype="multipart/form-data" class="border p-4 rounded shadow-sm bg-light" action="{% url 'vendor:edit_product' product.id %}">
+          {% csrf_token %}
             <div class="row">
                 <div class="form-group col-md-4">
                     <label for="id_name">Product Name</label>
@@ -120,7 +120,6 @@
         </form>
     </div>
 
-    <!-- Load JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>  
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
     <script src="{% static 'django_summernote/summernote.js' %}"></script>  
@@ -140,7 +139,6 @@
                 ]
             });
 
-            // Initial check for sale price input
             const onSaleCheckbox = document.getElementById('id_on_sale'); 
             const salePriceInput = document.getElementById('id_sale_price'); 
 

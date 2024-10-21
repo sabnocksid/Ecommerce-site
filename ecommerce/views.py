@@ -1,7 +1,8 @@
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import CreateView, ListView, TemplateView, DetailView
-from .models import Product, Category, Customer, Tag, Offer, Review
+from .models import Product, Category, Customer, Tag, Offer, Review, Vendor
+from cart.models import OrderItem
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import UserCreationForm
@@ -15,26 +16,42 @@ from django.utils import timezone
 from django.db.models import Avg
 from django.http import JsonResponse
 from django.core.exceptions import ValidationError
-
-
+from django.db.models import Q
+from cart.models import Order, OrderItem
+from django.utils import timezone
+from django.contrib.auth.models import AnonymousUser
+from django.views.generic import TemplateView
 
 class HomeView(TemplateView):
     template_name = 'home.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        user = self.request.user
 
-        context['offers'] = Offer.objects.filter(is_active=True, start_date__lte=timezone.now(), end_date__gte=timezone.now())
+        if user.is_authenticated:
+            order_items = OrderItem.objects.filter(order__user=user).values_list('product__category', flat=True).distinct()
+        else:
+            order_items = OrderItem.objects.none()
+
+        if order_items.exists():
+            context['recommended_products'] = Product.objects.filter(category__in=order_items).distinct()
+        else:
+            context['recommended_products'] = Product.objects.none()
+
+        context['offers'] = Offer.objects.filter(
+            is_active=True,
+            start_date__lte=timezone.now(),
+            end_date__gte=timezone.now()
+        )
         context['sale_products'] = Product.objects.filter(on_sale=True)
         context['categories'] = Category.objects.all()
         context['latest_products'] = Product.objects.order_by('-created_at')[:5]
         context['trending_products'] = Product.objects.filter(on_sale=True).order_by('-view_count')[:5]
 
-        # if self.request.user.is_authenticated:
-        #     context['for_you_products'] = self.get_for_you_products(self.request.user)
-        # else:
-        #     context['for_you_products'] = None  
         return context
+
+
 
 
 
@@ -44,32 +61,52 @@ class ProductCarouselView(ListView):
     context_object_name = 'products'  
     queryset = Product.objects.order_by('-created_at')  
 
-
 class ProductDetailView(DetailView):
     model = Product
     template_name = 'costumer/detail/product_detail.html'
     context_object_name = 'product'
 
     def get(self, request, *args, **kwargs):
-        # Call the base implementation to get the object
-        super().get(request, *args, **kwargs)
+        response = super().get(request, *args, **kwargs)
 
-        product = self.object  # Get the product
+        product = self.object
         product.view_count += 1  
         product.save()
 
         discount_percentage = 0
-        if product.on_sale and product.price and product.price > 0:
+        if product.on_sale and product.price and product.sale_price and product.price > 0:
             discount_percentage = round(((product.price - product.sale_price) / product.price) * 100, 1)
 
         average_rating = product.reviews.aggregate(Avg('rating'))['rating__avg'] or 0
         reviews = product.reviews.all()
 
+        can_review = False
+        if request.user.is_authenticated and Customer.objects.filter(pk=request.user.id).exists():
+            order_items = OrderItem.objects.filter(
+                order__user=request.user,
+                product=product,
+                order__shipment_status='Delivered'
+            )
+            
+            has_reviewed = Review.objects.filter(
+                user=request.user,
+                product=product
+            ).exists()
+    
+            if order_items.exists() and not has_reviewed:
+                can_review = True
+
         context = self.get_context_data(object=product)
         context['discount_percentage'] = discount_percentage
-        context['average_rating'] = round(average_rating, 1)  
-        context['reviews'] = reviews 
-        context['tags'] = product.tag.all()  
+        context['average_rating'] = round(average_rating, 1)
+        context['reviews'] = reviews
+        context['tags'] = product.tag.all()
+
+        context['related_products'] = Product.objects.filter(
+            Q(category=product.category) | Q(brand=product.brand)
+        ).exclude(id=product.id)[:4]
+
+        context['can_review'] = can_review
 
         return self.render_to_response(context)
 
@@ -81,6 +118,7 @@ class CategoryListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
+
 
 class BrandView(ListView):
     model = Product
@@ -99,7 +137,26 @@ class BrandView(ListView):
         context['brand_image'] = brand.image.url if brand.image else None
         context['brand_description'] = brand.description
         return context
-    
+
+class StoreView(DetailView):
+    model = Vendor
+    template_name = 'costumer/detail/store.html'
+    context_object_name = 'vendor'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        vendor = self.get_object()
+
+        context['business_name'] = vendor.business_name
+        context['profile_picture'] = vendor.profile_picture
+        context['address'] = vendor.address
+        context['phone_number'] = vendor.phone_number
+
+        context['products'] = Product.objects.filter(vendor=vendor)
+
+        return context
+
 
 
 class CategoryDetailView(DetailView):
@@ -110,12 +167,20 @@ class CategoryDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        category = self.get_object()  
+        category = self.get_object()
         
-        categories = Category.objects.all()  
+        categories = Category.objects.all()
         context['categories'] = categories
 
         context['category_products'] = Product.objects.filter(category=category)
+
+        search_query = self.request.GET.get('query', '')
+        if search_query:
+            context['category_products'] = context['category_products'].filter(
+                Q(name__icontains=search_query) |
+                Q(description__icontains=search_query) |
+                Q(brand__name__icontains=search_query)  
+            )
 
         return context
 
@@ -157,12 +222,10 @@ def add_review(request):
         rating = request.POST.get('rating')
         review_text = request.POST.get('review_text')
         
-        # Basic validation
         if not product_id or not rating or not review_text:
             return JsonResponse({'success': False, 'message': 'All fields are required.'}, status=400)
 
         try:
-            # Ensure rating is an integer and within expected range
             rating = int(rating)
             if rating < 1 or rating > 5:
                 return JsonResponse({'success': False, 'message': 'Rating must be between 1 and 5.'}, status=400)
@@ -179,4 +242,23 @@ def add_review(request):
         except Exception as e:
             return JsonResponse({'success': False, 'message': 'Error submitting review: ' + str(e)}, status=500)
     
-    return JsonResponse({'success': False, 'message': 'Invalid request.'}, status=400)
+    return JsonResponse({'success': False, 'message': 'Invalid request.'}, status=400) 
+
+def search_view(request):
+    query = request.GET.get('query', '')
+
+    products = Product.objects.filter(
+        Q(name__icontains=query) | 
+        Q(description__icontains=query)
+    )
+
+    categories = Category.objects.all()
+
+    context = {
+        'products': products,
+        'categories': categories,
+        'query': query,
+    }
+
+    return render(request, 'search_results.html', context)
+
