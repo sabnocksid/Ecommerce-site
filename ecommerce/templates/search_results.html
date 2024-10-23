@@ -1,27 +1,135 @@
 {% extends "home.html" %}
 {% block content %}
 
-    <div class="container mt-5 pt-5">
-      <h2>Search Results for "{{ query }}"</h2>
-  
-      {% if products %}
-      <div class="row ">
-          {% for product in products %}
-          <div class="col-md-4 mb-5">
-              <div class="card">
-                  <img src="{{ product.product_image.url }}" alt="{{ product.name }}" class="card-img-top">
-                  <div class="card-body">
-                      <h5>{{ product.name }}</h5>
-                      <h5>{{ product.price }}</h5>
-                      <a href="{% url 'product_detail' product.id %}" class="btn btn-primary">View Product</a>
-                  </div>
-              </div>
-          </div>
-          {% endfor %}
-      </div>
-      {% endif %}
-  
+<style>
+    .inp-cont {
+        margin-left: 40px;
+        display: flex;
+        gap: 10;
+        width: 300px;
+    }
 
-    
+    .small-input {
+        height: 40px; 
+        margin-left: 10px;
+        font-size: 14px; /* Smaller font size */
+        width: 70px; 
+    }
+
+    .btn {
+        font-size: 14px; /* Match font size */
+        min-width: 100px; 
+    }
+    .big-fit{
+        min-width: 130px;
+    }
+
+    .navbar {
+        flex-wrap: nowrap; /* Prevent wrapping of items */
+    }
+</style>
+
+<div class="container mt-3 pt-2">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+        <div class="container-fluid">
+            <form id="search-form" class="d-flex" method="GET" action="{% url 'search' %}">
+                <input type="text" name="query" class="form-control" placeholder="Search products" value="{{ query }}" id="query-input" >
+                <button class="btn btn-outline-primary" type="submit">Search</button>
+                
+                <div class="input-group me-2">
+                    <div class="inp-cont">
+                        <label style="margin-top: 8px;">Price Range:</label>
+                        <input type="number" id="min_price" name="min_price" class="form-control small-input" placeholder="Min" value="{{ min_price }}">
+                        <input type="number" id="max_price" name="max_price" class="form-control small-input" placeholder="Max" value="{{ max_price }}">
+                    </div>
+                </div>
+                
+                <button type="button" class="btn btn-secondary me-2" data-sort="price" style="margin-left: 30px;">Price <i class="fas fa-arrow-up"></i></button>
+                <button type="button" class="btn btn-secondary me-2" data-sort="price_desc">Price <i class="fas fa-arrow-down"></i></button>
+                <button type="button" class="btn btn-secondary me-2" data-sort="view_count">Popular <i class="fas fa-star"></i></button>
+                <button type="button" class="btn btn-secondary me-2 big-fit" data-sort="orders">Top Selling <i class="fas fa-shopping-cart"></i></button>
+                <button type="button" class="btn btn-secondary" data-sort="on_sale">On Sale <i class="fas fa-tag"></i></button>
+            </form>
+        </div>
+    </nav>
+
+    <div id="product-results">
+        {% if products %}
+        <div class="row">
+            {% for product in products %}
+            <div class="col-md-3 mb-4">
+                <div class="card h-100" style="transition: transform 0.2s; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);">
+                    <img src="{{ product.product_image.url }}" class="card-img-top" alt="{{ product.name }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product.name }}</h5>
+                        <h5 class="card-title">Rs{{ product.price }}</h5>
+                    </div>
+                    <div class="card-footer text-center">
+                        <a href="{% url 'product_detail' product.id %}" class="btn btn-primary">View Product</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p>No products found for "{{ query }}"</p>
+        {% endif %}
+    </div>
 </div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    let currentSort = ''; // Initialize current sort variable
+
+    function fetchProducts() {
+        var formData = $('#search-form').serialize();
+        if (currentSort) {
+            formData += '&sort_by=' + currentSort; // Append the sort option to formData
+        }
+
+        $.get("{% url 'search' %}", formData, function(data) {
+            $('#product-results').empty(); 
+
+            if (data.products.length > 0) {
+                var resultsHtml = '<div class="row">'; // Start a new row for results
+                $.each(data.products, function(index, product) {
+                    resultsHtml += `
+                        <div class="col-md-3 mb-4">
+                            <div class="card h-100" style="transition: transform 0.2s; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);">
+                                <img src="${product.product_image}" class="card-img-top" alt="${product.name}">
+                                <div class="card-body">
+                                    <h5 class="card-title">${product.name}</h5>
+                                    <h5 class="card-title">Rs ${product.price}</h5>
+                                </div>
+                                <div class="card-footer text-center">
+                                    <a href="/product/${product.id}/" class="btn btn-primary">View Product</a>
+                                </div>
+                            </div>
+                        </div>`;
+                });
+                resultsHtml += '</div>'; // Close the row
+                $('#product-results').html(resultsHtml); // Update the product results
+            } else {
+                $('#product-results').html('<p>No products found.</p>');
+            }
+        });
+    }
+
+    $('#min_price, #max_price, #query-input').on('input change', function() {
+        fetchProducts();
+    });
+
+    $('button[data-sort]').on('click', function() {
+        currentSort = $(this).data('sort'); // Set current sort option
+        fetchProducts(); // Fetch products based on current sorting option
+    });
+
+    $('#search-form').on('submit', function(event) {
+        event.preventDefault(); // Prevent default form submission
+        fetchProducts(); // Fetch products based on current form data
+    });
+});
+</script>
+
 {% endblock %}

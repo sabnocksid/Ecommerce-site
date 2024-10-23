@@ -16,7 +16,7 @@ from django.utils import timezone
 from django.db.models import Avg
 from django.http import JsonResponse
 from django.core.exceptions import ValidationError
-from django.db.models import Q
+from django.db.models import Q, Case, When, IntegerField, Count, Sum
 from cart.models import Order, OrderItem
 from django.utils import timezone
 from django.contrib.auth.models import AnonymousUser
@@ -244,21 +244,82 @@ def add_review(request):
     
     return JsonResponse({'success': False, 'message': 'Invalid request.'}, status=400) 
 
+
+
 def search_view(request):
-    query = request.GET.get('query', '')
+    query = request.GET.get('query', '').strip()
+    
+    # Retrieve filter parameters from request (if provided)
+    min_price = request.GET.get('min_price', None)
+    max_price = request.GET.get('max_price', None)
+    sort_by = request.GET.get('sort_by', '')  # Sorting can be 'price', 'view_count', 'orders', or 'on_sale'
+    on_sale = request.GET.get('on_sale', '')  # Filtering for on_sale
 
-    products = Product.objects.filter(
-        Q(name__icontains=query) | 
-        Q(description__icontains=query)
-    )
+    # Start with a base product queryset
+    products = Product.objects.all()
 
+    if query:
+        products = products.annotate(
+            match_score=Case(
+                When(name__iexact=query, then=3),  # Exact match in name
+                When(name__icontains=query, then=2),  # Partial match in name
+                When(description__icontains=query, then=1),  # Match in description
+                output_field=IntegerField(),
+            )
+        ).filter(
+            Q(name__icontains=query) | Q(description__icontains=query)
+        )
+    
+    if min_price:
+        products = products.filter(price__gte=min_price)
+    if max_price:
+        products = products.filter(price__lte=max_price)
+
+    if on_sale == 'true':
+        products = products.filter(on_sale=True)
+
+    if sort_by == 'price':
+        products = products.order_by('price')  # Ascending order by price
+    elif sort_by == 'price_desc':
+        products = products.order_by('-price')  # Descending order by price
+    elif sort_by == 'view_count':
+        products = products.order_by('-view_count')  # Descending order by view count
+    elif sort_by == 'orders':
+        products = products.annotate(order_count=Sum('orderitem__quantity', output_field=IntegerField())).order_by('-order_count')
+    elif sort_by == 'on_sale':
+        products = products.filter(on_sale=True)  # Filter products on sale
+        products = products.order_by('price')  # Sort on-sale products by price
+
+    # Default ordering by match score if no sort is specified
+    if not sort_by:
+        products = products.order_by('-match_score')
+
+    # Default ordering by match score if no sort is specified
+    if not sort_by:
+        products = products.order_by('-match_score')
+
+    # Check if the request is AJAX
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        product_list = [{
+            'id': product.id,
+            'name': product.name,
+            'product_image': product.product_image.url if product.product_image else None,
+            'price': product.price,
+        } for product in products]
+
+        return JsonResponse({'products': product_list})
+
+    # Retrieve all categories for display in the template
     categories = Category.objects.all()
 
     context = {
         'products': products,
         'categories': categories,
         'query': query,
+        'min_price': min_price,
+        'max_price': max_price,
+        'sort_by': sort_by,
+        'on_sale': on_sale,  
     }
 
     return render(request, 'search_results.html', context)
-
