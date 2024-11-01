@@ -2,6 +2,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 
 <style>
+  /* General container styles */
   .container {
     margin-top: 100px;
     display: flex;
@@ -9,54 +10,54 @@
     width: 100%;
   }
 
+  /* Swiper container for carousel */
   .swiper-container {
-    width: 60%; /* Adjust the width to accommodate the search forms */
+    width: 60%; 
   }
 
+  /* Search container */
   .search-container {
     width: 35%;
     margin-left: 20px;
-    position: relative; /* Set position relative for the dropdown menu */
+    position: relative;
   }
 
+  /* Search form styling */
   .search-form {
     background-color: #f8f9fa;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    margin-bottom: 10px; /* Reduced margin for closer spacing */
+    margin-bottom: 10px;
   }
 
+  /* Dropdown styling */
   .dropdown-menu {
-    background-color: #fff; /* Background color of dropdown */
-    border: 1px solid #ccc; /* Optional border for clarity */
+    background-color: #fff;
+    border: 1px solid #ccc;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    position: absolute; /* Positioning it absolutely */
-    z-index: 1000; /* Ensure dropdown appears above other elements */
-    width: 100%; /* Full width under the search form */
-    display: none; /* Initially hidden */
+    position: absolute;
+    z-index: 1000;
+    width: 100%;
+    display: none;
   }
 
   .dropdown-menu.show {
-    display: block; /* Show dropdown when needed */
+    display: block;
   }
 
   .dropdown-item {
-    padding: 10px 15px; /* Padding for dropdown items */
-    text-decoration: none; /* Remove underline */
-    color: #333; /* Text color */
+    padding: 10px 15px;
+    text-decoration: none;
+    color: #333;
   }
 
   .dropdown-item:hover {
-    background-color: #f0f0f0; /* Hover effect */
+    background-color: #f0f0f0;
   }
 
-  .swiper {
-    width: 100%;
-    height: 475px;
-  }
-
+  /* Swiper slide styling */
   .swiper-slide {
     text-align: center;
     font-size: 18px;
@@ -79,36 +80,30 @@
     width: 100%;
     height: 400px;
     object-fit: cover;
-    border-radius: 8px 8px 0 0; /* Round top corners of the image */
+    border-radius: 8px 8px 0 0;
   }
 
   .countdown {
     font-size: 18px;
     font-weight: bold;
-    color: #FF0000;
     margin-top: 10px;
     white-space: nowrap;
   }
 
-  .search-form h4 {
-    font-size: 24px;
-    margin-bottom: 15px;
-    color: #2B2D42; 
-  }
-
+  /* Search form input */
   .search-form input[type="text"] {
     width: 100%;
     padding: 10px;
     margin-bottom: 15px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    font-size: 16px; /* Increased font size for better readability */
+    font-size: 16px;
   }
 
   .search-form button {
     width: 100%;
     padding: 10px;
-    background-color: #007bff; /* Bootstrap primary color */
+    background-color: #007bff;
     color: white;
     border: none;
     border-radius: 4px;
@@ -117,17 +112,33 @@
   }
 
   .search-form button:hover {
-    background-color: #0056b3; /* Darker shade for hover effect */
+    background-color: #0056b3;
   }
 
-  .dropdown-menu {
-    background-color: #f8f9fa; /* Consistent with the search form */
-    border-radius: 4px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  }
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .container {
+      flex-direction: column;
+      align-items: center;
+    }
 
-  .dropdown-item:hover {
-    background-color: #e9ecef; /* Light hover effect */
+    .swiper-container,
+    .search-container {
+      width: 100%;
+      margin: 0;
+    }
+
+    .swiper-slide img {
+      height: 300px;
+    }
+
+    .search-form h4 {
+      font-size: 20px;
+    }
+
+    .countdown {
+      font-size: 16px;
+    }
   }
 </style>
 
@@ -138,7 +149,7 @@
         {% for offer in offers %}
         <div class="swiper-slide">
           <img src="{{ offer.banner.url }}" alt="{{ offer.title }}">
-          <div class="countdown" id="countdown-{{ forloop.counter }}"></div>
+          <div class="countdown text-primary" id="countdown-{{ forloop.counter }}"></div>
         </div>
         {% empty %}
         <div class="swiper-slide">
@@ -151,21 +162,19 @@
       <div class="swiper-button-prev"></div>
       <div class="swiper-pagination"></div>
     </div>
-
   </div>
 
   <div class="search-container">
     <form method="GET" action="{% url 'search' %}" class="search-form">
       <h4>Search Products</h4>
-      <input type="text" name="query" placeholder="Search for products by name or description..." required>
+      <input type="text" name="query" placeholder="Search for products" required>
       <button type="submit">Search</button>
     </form>
     <div class="search-container" style="width:400px; background: none;">
       <div class="search-form" style="background: #fff; box-shadow: none;">
-        <button class="btn btn-secondary dropdown-toggle" type="button" id="categoryDropdown" data-bs-toggle="dropdown" aria-expanded="false" >
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="categoryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
           Browse Category
         </button>
-        
         <ul class="dropdown-menu" aria-labelledby="categoryDropdown">
           {% for category in categories %}
           <li>
@@ -177,9 +186,7 @@
         </ul>
       </div>
     </div>
-    
   </div>
-
 </div>
 
 <!-- Swiper JS -->

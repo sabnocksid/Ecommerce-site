@@ -5,39 +5,114 @@ from django.urls import reverse_lazy
 from django.views import View
 from django.shortcuts import get_object_or_404
 from django.views.generic import CreateView, ListView, TemplateView, DetailView
+from django.core.exceptions import PermissionDenied
 from django.contrib.auth.mixins import LoginRequiredMixin
-from ecommerce.models import Product, Vendor, Category, Tag, Brand
+from ecommerce.models import Product, Vendor, Category, Tag, Brand, Customer
 from cart.models import Order, OrderItem
 from .forms import ProductForm, VendorRegistrationForm
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
+from django.db.models import Sum, Count, F, Q, Avg, Value
+from django.db.models.functions import Coalesce
 from django.contrib.auth.decorators import login_required
+from django.utils import timezone
 
 
 class VendorDashboardView(LoginRequiredMixin, TemplateView):
     template_name = 'vendor/vendor_dashboard.html'
+    login_url = 'vendor:vendor_login'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        if self.request.user.is_authenticated:
-            try:
-                vendor = Vendor.objects.get(user=self.request.user)  # Get the Vendor object associated with the logged-in user
-                vendor_name = vendor.business_name  
-            except Vendor.DoesNotExist:
-                vendor = None
-                vendor_name = 'Guest'  
-
+        try:
+            vendor = Vendor.objects.get(user=self.request.user)
             context['vendor'] = vendor
-            context['vendor_name'] = vendor_name
-            context['your_product'] = Product.objects.filter(vendor=vendor).order_by('-created_at') 
-        else:
-            context['vendor_name'] = 'Guest'
-            context['your_product'] = []  
+            context['vendor_name'] = vendor.business_name
+            your_product = Product.objects.filter(vendor=vendor).annotate(
+                total_sales=Sum(
+                    'orderitem__quantity',
+                    filter=Q(orderitem__order__shipment_status='Delivered'),  
+                    default=0
+                ),
+                total_orders=Sum(
+                    'orderitem__quantity',
+                    filter=Q(orderitem__order__shipment_status__in=['Delivered', 'Pending', 'Canceled']), 
+                    default=0
+                ),
+                total_items=F('stock') + Sum('orderitem__quantity', default=0),
+                average_rating=Coalesce(Avg('reviews__rating'), Value(0.0))
+            ).order_by('-created_at')
+            context['your_product'] = your_product
+            context['brand_list'] = Brand.objects.all()
+            context['category_list'] = Category.objects.all()
+            context['tag_list'] = Tag.objects.all()
+            now = timezone.now()
+            top_selling_products = (
+                OrderItem.objects.filter(
+                    product__vendor=vendor,
+                    order__shipment_status='Delivered'
+                )
+                .values('product', 'product__name')
+                .annotate(total_sales=Sum('quantity'))
+                .order_by('-total_sales')[:5]
+            )
 
-        context['brand_list'] = Brand.objects.all()
-        context['category_list'] = Category.objects.all()
-        context['tag_list'] = Tag.objects.all()
+            highest_ordered_products = (
+                OrderItem.objects.filter(product__vendor=vendor)
+                .values('product', 'product__name')
+                .annotate(order_count=Count('order'))
+                .order_by('-order_count')[:5]
+            )
+
+            most_viewed_products = (
+                Product.objects.filter(vendor=vendor)
+                .order_by('-view_count')[:5]
+            )
+
+            most_reviewed_products = (
+                Product.objects.filter(vendor=vendor)
+                .annotate(review_count=Count('reviews'))
+                .order_by('-review_count')[:5]
+            )
+            overall_rating = Product.objects.filter(vendor=vendor).aggregate(Avg('reviews__rating'))['reviews__rating__avg'] or 0.0
+            total_order_times = OrderItem.objects.filter(product__vendor=vendor).count()
+            total_orders = OrderItem.objects.filter(product__vendor=vendor).aggregate(total_quantity=Sum('quantity'))['total_quantity'] or 0
+            total_customers = OrderItem.objects.filter(product__vendor=vendor).values('order__user').distinct().count()  
+            total_visits = Product.objects.filter(vendor=vendor).aggregate(total_view_count=Sum('view_count'))['total_view_count'] or 0
+
+            total_items_sold = (
+                OrderItem.objects.filter(
+                    product__vendor=vendor,
+                    order__shipment_status='Delivered'
+                )
+                .aggregate(total_quantity=Sum('quantity'))['total_quantity'] or 0
+            )
+
+            total_earnings = (
+                OrderItem.objects.filter(
+                    product__vendor=vendor,
+                    order__shipment_status='Delivered'
+                )
+                .aggregate(total_earnings=Sum('total_price'))['total_earnings'] or 0.0
+            )
+
+            context.update({
+                'top_selling_products': top_selling_products,
+                'highest_ordered_products': highest_ordered_products,
+                'most_viewed_products': most_viewed_products,
+                'most_reviewed_products': most_reviewed_products,
+                'total_items_sold': total_items_sold,
+                'total_earnings': total_earnings,
+                'total_orders': total_orders,  # Total orders
+                'total_order_times': total_order_times,  # Total orders
+                'total_customers': total_customers,  # Total unique customers
+                'total_visits': total_visits,  # Total visits across products
+                'overall_rating': overall_rating,
+            })
+
+        except Vendor.DoesNotExist:
+            raise PermissionDenied
 
         return context
 
@@ -104,7 +179,7 @@ def add_brand(request):
         brand = Brand(name=name, image=image, description=description)
         brand.save()
 
-        return redirect('/')  # Redirect to your brand list view
+        return redirect('/')  
 
     return render(request, 'add_brand.html') 
 
@@ -180,7 +255,7 @@ class VendorLogoutView(View):
 @login_required
 def vendor_orders(request):
     vendor = request.user.vendor
-    orders = Order.objects.filter(items__product__vendor=vendor).distinct()
+    orders = Order.objects.filter(items__product__vendor=vendor).distinct().order_by('-created_at')
     return render(request, 'vendor/vendor_orders.html', {'orders': orders})
 
 @login_required

@@ -1,7 +1,8 @@
 from django.urls import path
 from . import views
 from vendor.views import  VendorDashboardView
-from  vendor.views import VendorLoginView, vendor_registration_view, VendorLogoutView, create_product, add_category, add_brand, add_tag, brand_list, tag_list, category_list, vendor_orders, update_shipment_status 
+from django.contrib.auth import views as auth_views
+from  vendor.views import VendorLoginView, vendor_registration_view, VendorLogoutView, create_product, add_category, add_brand, add_tag, brand_list, tag_list, category_list, vendor_orders, update_shipment_status
 app_name = 'vendor'  
 
 urlpatterns = [
@@ -20,6 +21,5 @@ urlpatterns = [
     path('tag-list/', tag_list, name='tag_list'),
     path('vendor-orders/', vendor_orders, name='vendor_orders'),
     path('update-shipment-status/<int:order_id>/', update_shipment_status, name='update_shipment_status'),
-
 
     ]

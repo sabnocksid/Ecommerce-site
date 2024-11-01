@@ -1,36 +1,81 @@
 {% load static %}
 {% block content %}
 <h2 class="mt-4 mb-2" style="margin-left: 20px;">Trending Products</h2>
-<div class="card-group px-4 pt-4 " >
-<div class="row">
-    {% for product in trending_products %}
-        <div class="col-md-3 mb-4">
-            <div class="card h-100" style="box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5), -2px -2px 5px rgba(0, 0, 0, 0.2) ; ">
-                <h5 class="text-capitalize btn btn-danger" style="position: absolute; margin-left: 230px; margin-top: 10px;" >Hot <i class="fa fa-fire text-warning"></i></h5>
-                <img src="{{ product.product_image.url }}" class="card-img-top" alt="{{ product.name }}">
-                <div class="card-body">
-                    <h5 class="card-title">{{ product.name }}</h5>
+<div id="trendingCarousel" class="carousel slide px-4 pt-4" data-bs-ride="carousel">
+    <div class="carousel-inner">
+        {% for product in trending_products %}
+            {% if forloop.counter0|divisibleby:6 %}
+                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                    <div class="row">
+            {% endif %}
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-2 mb-4">
+                            <div class="card h-100" style="box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5), -2px -2px 5px rgba(0, 0, 0, 0.2);">
+                                <h5 class="text-capitalize btn btn-danger fw-bold" style="position: absolute; right: 10px; top: 10px;">Hot <i class="fa fa-fire text-warning"></i></h5>
+                                <img src="{{ product.product_image.url }}" class="card-img-top" alt="{{ product.name }}">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ product.name }}</h5>
+                                </div>
+                                <div class="card-footer text-center">
+                                    <a href="{% url 'product_detail' product.id %}" class="btn btn-primary btn-sm">View Product</a>
+                                </div>
+                            </div>
+                        </div>
+            {% if forloop.counter0|add:1|divisibleby:6 or forloop.last %}
+                    </div>
                 </div>
-                <div class="card-footer text-center">
-                    <a href="{% url 'product_detail' product.id %}" class="btn btn-primary">View Product</a>
-                </div>
+            {% endif %}
+        {% empty %}
+            <div class="col-12">
+                <h3>No trending products available.</h3>
             </div>
-        </div>
-    {% empty %}
-        <div class="col-12">
-            <h3>No latest products available.</h3>
-        </div>
-    {% endfor %}
+        {% endfor %}
+    </div>
+
+    {% if trending_products|length > 6 %}
+        <button class="carousel-control-prev" type="button" data-bs-target="#trendingCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#trendingCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    {% endif %}
 </div>
-</div>
+
 <style>
     .card {
-        transition: transform 0.2s; /* Smooth transition for hover effect */
+        transition: transform 0.2s;
     }
 
     .card:hover {
-        transform: translateY(-5px); 
-        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3); 
+        transform: translateY(-5px);
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    h2 {
+        font-size: 1.5rem;
+        margin-left: 10px;
+    }
+
+    @media (max-width: 576px) {
+        .card img {
+            height: 150px;
+            object-fit: cover;
+        }
+
+        .card-body {
+            padding: 10px;
+        }
+
+        .card-footer {
+            padding: 5px;
+        }
+
+        h5.text-capitalize.btn.btn-danger {
+            margin-left: 0;
+            font-size: 0.85rem;
+        }
     }
 </style>
 {% endblock content %}

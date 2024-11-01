@@ -11,7 +11,6 @@
 </head>
 <body>
   {% include "vendor/home/top-section/navbar.html" %}
-
   <div class="container-fluid">
       <div class="row">
           <main class="col-md-9 ms-sm-auto col-lg-12 pt-4 mt-4">
@@ -26,22 +25,10 @@
               <div id="product">
               {% include "vendor/home/mid-section/product_lists.html" %}
             </div>
-
-            <div id="brand">
-              {% include "vendor/brand_list.html" %}
-            </div>
-            <div id="category">
-              {% include "vendor/category_list.html" %}
-              </div>
-              <div id="tag">
-              {% include "vendor/tag_list.html" %}
-              </div>
               {% endblock content %}
           </main>
       </div>
   </div>
-
-  {% include "vendor/home/bottom-section/footer.html" %}
 
     <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
 </body>

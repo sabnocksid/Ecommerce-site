@@ -35,6 +35,7 @@ class Vendor(TimeStampedModel):
 
 class Category(TimeStampedModel): 
     name = models.CharField(max_length=100)
+    image = models.ImageField(upload_to="category_image/%Y/%m/%d", blank=False)
 
     def __str__(self):
         return self.name

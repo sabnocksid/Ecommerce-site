@@ -12,7 +12,6 @@
                 </ul>
             </div>
 
-            <!-- Website Information Section -->
             <div class="col-md-4 mb-4">
                 <h5>Website Information</h5>
                 <ul class="list-unstyled">
@@ -60,7 +59,6 @@
 
 <!-- Back to Top Script -->
 <script>
-    // Show button when scrolled down
     const backToTopButton = document.getElementById('backToTop');
     window.onscroll = function() {
         if (document.body.scrollTop > 50 || document.documentElement.scrollTop > 50) {
@@ -70,17 +68,40 @@
         }
     };
 
-    // Scroll to top when button clicked
     backToTopButton.addEventListener('click', function() {
         window.scrollTo({top: 0, behavior: 'smooth'});
     });
 </script>
 
 <style>
+    body {
+        /* Ensure the content takes up the full height of the viewport minus footer height */
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .content {
+        flex-grow: 2;
+        padding-bottom: 20px; /* Adds some space at the bottom */
+    }
+
     footer {
         position: relative;
         bottom: 0;
         width: 100%;
         padding: 20px 0;
     }
+
+    /* Add margin to push footer down on larger screens */
+    @media (min-width: 1920px) {
+        body {
+            margin-bottom: 40px; /* Adjust this value as needed */
+        }
+    }
+
+    #backToTop {
+        display: none; /* Hidden by default */
+    }
 </style>
+

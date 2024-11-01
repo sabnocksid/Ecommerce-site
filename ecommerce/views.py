@@ -44,14 +44,18 @@ class HomeView(TemplateView):
             start_date__lte=timezone.now(),
             end_date__gte=timezone.now()
         )
-        context['sale_products'] = Product.objects.filter(on_sale=True)
+        sale_products = Product.objects.filter(on_sale=True)
+        for product in sale_products:
+            if product.sale_price and product.price:  
+                discount_percentage = ((product.price - product.sale_price) / product.price) * 100
+                product.discount_percentage = round(discount_percentage, 2)  
+
+        context['sale_products'] = sale_products
         context['categories'] = Category.objects.all()
         context['latest_products'] = Product.objects.order_by('-created_at')[:5]
         context['trending_products'] = Product.objects.filter(on_sale=True).order_by('-view_count')[:5]
 
         return context
-
-
 
 
 
@@ -249,7 +253,6 @@ def add_review(request):
 def search_view(request):
     query = request.GET.get('query', '').strip()
     
-    # Retrieve filter parameters from request (if provided)
     min_price = request.GET.get('min_price', None)
     max_price = request.GET.get('max_price', None)
     sort_by = request.GET.get('sort_by', '')  # Sorting can be 'price', 'view_count', 'orders', or 'on_sale'
