@@ -70,24 +70,18 @@
                     <a class="nav-link" href="{% url 'vendor:vendor_dashboard' %}"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'vendor:brand_list' %}"><i class="far fa-address-book"></i> Brand List</a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'vendor:category_list' %}"><i class="far fa-calendar-alt"></i> Category List</a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'vendor:tag_list' %}"><i class="fas fa-tags"></i> Tag List</a>
+                    <a class="nav-link" href="{% url 'vendor:attribute_dashboard' %}"><i class="far fa-calendar-alt"></i> Attributes</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'vendor:vendor_orders' %}"><i class="far fa-copy"></i> Orders</a>
+                    <a class="nav-link" href="{% url 'vendor:vendor_orders' %}"><i class="fa fa-list"></i> Orders</a>
                 </li>
             </ul>
     
             <div class="navbar-nav">
-                <span class="navbar-text mr-3 text-white">{{ request.user.username }}</span>
-                <a class="nav-link text-white" href="{% url 'vendor:vendor_logout' %}">Logout</a>
+                {% if request.path == '/vendor/' %}
+                    <span class="navbar-text mr-3 text-white">{{ request.user.username }}</span>
+                    <a class="nav-link text-white" href="{% url 'vendor:vendor_logout' %}">Logout</a>
+                {% endif %}
             </div>
         </div>
     </nav>

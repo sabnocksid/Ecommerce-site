@@ -1,63 +1,93 @@
 {% load static %}
-<footer class="bg-dark text-white pt-4">
+<footer>
     <div class="container">
-        <div class="row">
-            <!-- Contact Section -->
-            <div class="col-md-4 mb-4">
-                <h5>Contact Us</h5>
-                <ul class="list-unstyled">
-                    <li>Email: info@example.com</li>
-                    <li>Phone: +1 234 567 890</li>
-                    <li>Address: 123 Main Street, City, Country</li>
-                </ul>
+        <div class="row col-md-12">
+            <div class="col-md-2">
+                <h5>Categories</h5>
+                <ul >
+                    {% for category in categories %}
+                    <li>
+                      <a  href="{% url 'category_detail' category.id %}" onclick="changeDropdownText('{{ category.name }}')">{{ category.name }}</a>
+                    </li>
+                    {% empty %}
+                    <li><a href="#">No categories available</a></li>
+                    {% endfor %}
+                  </ul>
             </div>
 
-            <div class="col-md-4 mb-4">
-                <h5>Website Information</h5>
+            <div class="col-md-2 mb-4">
+                <h5>Trending Products</h5>
+                <ul >
+                    {% for product in trending_products %}
+                    <li>
+                      <a  href="{% url 'product_detail' product.id %}" onclick="changeDropdownText('{{ product.name }}')">{{ product.name }}</a>
+                    </li>
+                    {% empty %}
+                    <li><a href="#">No products available</a></li>
+                    {% endfor %}
+                  </ul>
+            </div>
+            <div class="col-md-2 mb-4">
+                <h5>latest Products</h5>
+                <ul >
+                    {% for product in latest_products %}
+                    <li>
+                      <a  href="{% url 'product_detail' product.id %}" onclick="changeDropdownText('{{ product.name }}')" >{{ product.name }}</a>
+                    </li>
+                    {% empty %}
+                    <li><a href="#">No Product available</a></li>
+                    {% endfor %}
+                  </ul>
+            </div>
+            <div class="col-md-2 mb-4">
+                <h5>Shops</h5>
                 <ul class="list-unstyled">
-                    <li><a href="#" class="text-white">About Us</a></li>
-                    <li><a href="#" class="text-white">Privacy Policy</a></li>
-                    <li><a href="#" class="text-white">Terms of Service</a></li>
+                    {% for vendor in vendors %}
+                    <li>
+                        <a href="{% url 'store_detail' vendor.pk %}" onclick="changeDropdownText('{{ vendor.business_name }}')">{{ vendor.business_name }}</a>
+                    </li>
+                    {% empty %}
+                    <li><a href="#" class="text-primary">No shops available</a></li>
+                    {% endfor %}
                 </ul>
             </div>
-
-            <!-- Social Media Section -->
             <div class="col-md-4 mb-4">
+            <form method="GET" action="{% url 'search' %}" class="search-form">
+                <h4 class="text-primary">Search Products</h4>
+                <input type="text" name="query" placeholder="Search for products" required>
+                <button type="submit">Search</button>
+              </form>
+            </div> 
+            
+            <div class="col-md-3 mb-4 ">
                 <h5>Follow Us</h5>
                 <ul class="list-unstyled d-flex">
                     <li class="me-3">
-                        <a href="#" class="text-white">
+                        <a href="#" class="text-primary">
                             <i class="fab fa-facebook-f"></i>
                         </a>
                     </li>
                     <li class="me-3">
-                        <a href="#" class="text-white">
+                        <a href="#" class="text-primary">
                             <i class="fab fa-twitter"></i>
                         </a>
                     </li>
                     <li class="me-3">
-                        <a href="#" class="text-white">
+                        <a href="#" class="text-primary">
                             <i class="fab fa-instagram"></i>
                         </a>
                     </li>
                     <li class="me-3">
-                        <a href="#" class="text-white">
+                        <a href="#" class="text-primary">
                             <i class="fab fa-linkedin-in"></i>
                         </a>
                     </li>
                 </ul>
             </div>
         </div>
-
-        <div class="text-center mt-4">
-            <a href="#" class="btn btn-secondary" id="backToTop">
-                Back to Top
-            </a>
-        </div>
     </div>
 </footer>
 
-<!-- Back to Top Script -->
 <script>
     const backToTopButton = document.getElementById('backToTop');
     window.onscroll = function() {
@@ -74,29 +104,23 @@
 </script>
 
 <style>
-    body {
-        /* Ensure the content takes up the full height of the viewport minus footer height */
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-    }
+
 
     .content {
-        flex-grow: 2;
         padding-bottom: 20px; /* Adds some space at the bottom */
     }
 
     footer {
         position: relative;
+        background: #d8d8d8;
         bottom: 0;
         width: 100%;
         padding: 20px 0;
     }
 
-    /* Add margin to push footer down on larger screens */
     @media (min-width: 1920px) {
         body {
-            margin-bottom: 40px; /* Adjust this value as needed */
+            margin-bottom: 40px;
         }
     }
 

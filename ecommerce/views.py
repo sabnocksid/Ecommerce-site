@@ -44,6 +44,7 @@ class HomeView(TemplateView):
             start_date__lte=timezone.now(),
             end_date__gte=timezone.now()
         )
+
         sale_products = Product.objects.filter(on_sale=True)
         for product in sale_products:
             if product.sale_price and product.price:  
@@ -52,6 +53,7 @@ class HomeView(TemplateView):
 
         context['sale_products'] = sale_products
         context['categories'] = Category.objects.all()
+        context['vendors'] = Vendor.objects.all()
         context['latest_products'] = Product.objects.order_by('-created_at')[:5]
         context['trending_products'] = Product.objects.filter(on_sale=True).order_by('-view_count')[:5]
 
@@ -170,7 +172,6 @@ class CategoryDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
         category = self.get_object()
         
         categories = Category.objects.all()
@@ -185,7 +186,6 @@ class CategoryDetailView(DetailView):
                 Q(description__icontains=search_query) |
                 Q(brand__name__icontains=search_query)  
             )
-
         return context
 
 

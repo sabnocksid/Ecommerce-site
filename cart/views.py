@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from decimal import Decimal
 from django.contrib import messages
-from ecommerce.models import Product
+from ecommerce.models import Product, Review
 from .models import Order, OrderItem, Payment
 from .cart import Cart
 import logging
@@ -176,13 +176,26 @@ def order_confirmation(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
     return render(request, 'order_confirmation.html', {'order': order})
 
-
 @login_required
 def order_detail(request):
-    orders = Order.objects.filter(user=request.user)
-
-    return render(request, 'order_detail.html', {'orders': orders})
-
+    pending_orders = Order.objects.filter(user=request.user, shipment_status='Pending').order_by('-created_at')
+    shipped_orders = Order.objects.filter(user=request.user, shipment_status='Shipped').order_by('-created_at')
+    
+    delivered_orders = []
+    for order in Order.objects.filter(user=request.user, shipment_status='Delivered').order_by('-created_at'):
+        items_without_reviews = [
+            item for item in order.items.all()
+            if not Review.objects.filter(user=request.user, product=item.product).exists()
+        ]
+        if items_without_reviews:
+            delivered_orders.append(order)
+    
+    context = {
+        'pending_orders': pending_orders,
+        'shipped_orders': shipped_orders,
+        'delivered_orders': delivered_orders,
+    }
+    return render(request, 'order_detail.html', context)
 @login_required
 def order_detail_view(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)

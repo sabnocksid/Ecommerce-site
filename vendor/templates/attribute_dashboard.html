@@ -1,0 +1,166 @@
+{% extends 'vendor/vendor_dashboard.html' %}
+{% load static %}
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attribute Dashboard</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    {% block content %}
+    <div class="container">
+        <h2 class="text-center">Vendor Attribute Dashboard</h2>
+        <div class="row mt-4">
+          <div class="col-md-12">
+            <h4 class="text-center">Analytics</h4>
+            <div class="row">
+        
+                <div class="col-md-4 mb-3">
+                    <div class="card text-white bg-primary p-3 text-center">
+                        <h5><strong>Most Viewed Category</strong></h5>
+                        {% if most_viewed_category %}
+                            <span>{{ most_viewed_category.name }}</span>
+                        {% else %}
+                            <span>N/A</span>
+                        {% endif %}
+                    </div>
+                </div>
+        
+                <div class="col-md-4 mb-3">
+                    <div class="card text-white bg-success p-3 text-center">
+                        <h5><strong>Most Viewed Brand</strong></h5>
+                        {% if most_viewed_brand %}
+                            <span>{{ most_viewed_brand.name }}</span>
+                        {% else %}
+                            <span>N/A</span>
+                        {% endif %}
+                    </div>
+                </div>
+        
+                <div class="col-md-4 mb-3">
+                    <div class="card text-white bg-info p-3 text-center">
+                        <h5><strong>Most Ordered Category</strong></h5>
+                        {% if most_ordered_category %}
+                            <span>{{ most_ordered_category.name }}</span>
+                        {% else %}
+                            <span>N/A</span>
+                        {% endif %}
+                    </div>
+                </div>
+        
+                <div class="col-md-4 mb-3">
+                    <div class="card text-white bg-warning p-3 text-center">
+                        <h5><strong>Most Ordered Brand</strong></h5>
+                        {% if most_ordered_brand %}
+                            <span>{{ most_ordered_brand.name }}</span>
+                        {% else %}
+                            <span>N/A</span>
+                        {% endif %}
+                    </div>
+                </div>
+        
+                <div class="col-md-4 mb-3">
+                    <div class="card text-white bg-danger p-3 text-center">
+                        <h5><strong>Total Categories Offered</strong></h5>
+                        <span>{{ total_categories_offered }}</span>
+                    </div>
+                </div>
+        
+                <div class="col-md-4 mb-3">
+                    <div class="card text-white bg-secondary p-3 text-center">
+                        <h5><strong>Total Brands Offered</strong></h5>
+                        <span>{{ total_brands_offered }}</span>
+                    </div>
+                </div>
+        
+                <div class="col-md-4 mb-3">
+                    <div class="card text-white bg-dark p-3 text-center">
+                        <h5><strong>Most Sold Category</strong></h5>
+                        {% if most_sold_category %}
+                            <span>{{ most_sold_category.name }}</span>
+                        {% else %}
+                            <span>N/A</span>
+                        {% endif %}
+                    </div>
+                </div>
+        
+            </div>
+        </div>
+        
+        
+      
+
+        <!-- Brands Section -->
+        <div class="row">
+            <div class="col-md-12">
+                <h4 class="mt-4">Brands</h4>
+                <a href="{% url 'vendor:add_brand' %}" class="btn btn-primary mb-3">Add Brand</a>
+                <div class="row">
+                    {% if brands %}
+                        {% for brand in brands %}
+                            <div class="col-md-4 mb-4">
+                                <div class="card">
+                                    <div class="text-center">
+                                        {% if brand in offered_brands %}
+                                            <span class="btn btn-primary" style="position: absolute; margin-left: 100px; margin-top: 20px;">Offering</span>
+                                        {% endif %}
+                                    </div>
+                                    {% if brand.image %}
+                                        <img src="{{ brand.image.url }}" alt="{{ brand.name }}" class="card-img-top" style="height: 200px; object-fit: cover;">
+                                    {% else %}
+                                        <img src="{% static 'path/to/default/image.jpg' %}" alt="Default Image" class="card-img-top" style="height: 200px; object-fit: cover;">
+                                    {% endif %}
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title">{{ brand.name }}</h5>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="col-md-12">
+                            <p>No brands available.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Categories Section -->
+            <div class="col-md-12">
+                <h4 class="mt-4">Categories</h4>
+                <a href="{% url 'vendor:add_category' %}" class="btn btn-primary mb-3">Add Category</a>
+                <div class="row">
+                    {% if categories %}
+                        {% for category in categories %}
+                            <div class="col-md-4 mb-4">
+                                <div class="card">
+                                    <div class="text-center">
+                                        {% if category in offered_categories %}
+                                            <span class="btn btn-primary" style="position: absolute; margin-left: 100px; margin-top: 20px;">Offering</span>
+                                        {% endif %}
+                                    </div>
+                                    {% if category.image %}
+                                        <img src="{{ category.image.url }}" alt="{{ category.name }}" class="card-img-top" style="height: 200px; object-fit: cover;">
+                                    {% else %}
+                                        <img src="{% static 'path/to/default/image.jpg' %}" alt="Default Image" class="card-img-top" style="height: 200px; object-fit: cover;">
+                                    {% endif %}
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title">{{ category.name }}</h5>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="col-md-12">
+                            <p>No categories available.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+    {% endblock content %}
+</body>
+</html>

@@ -143,6 +143,12 @@
             <table class="table table-striped" id="productTable">
                 <thead>
                     <tr>
+                        <th colspan="6"></th>
+                        <th><a href="{% url 'vendor:create_product' %}" class="btn btn-primary btn-sm">Add</a></th>
+                    </tr>
+                </thead>
+                <thead>
+                    <tr>
                         <th scope="col" onclick="sortTable(0)">Product <i class="fas fa-sort"></i></th>
                         <th scope="col" onclick="sortTable(1)">Price <i class="fas fa-sort"></i></th>
                         <th scope="col" onclick="sortTable(2)">Interaction <i class="fas fa-sort"></i></th>
@@ -332,13 +338,11 @@
         const chartSelector = document.getElementById('chartSelector');
         const selectedValue = chartSelector.value;
 
-        // Hide all charts
         document.getElementById('topSellingChart').style.display = 'none';
         document.getElementById('highestOrderedChart').style.display = 'none';
         document.getElementById('mostViewedChart').style.display = 'none';
         document.getElementById('mostReviewedChart').style.display = 'none';
 
-        // Show selected chart
         if (selectedValue === 'topSelling') {
             document.getElementById('topSellingChart').style.display = 'block';
             drawTopSellingChart();

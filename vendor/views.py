@@ -16,6 +16,8 @@ from django.db.models import Sum, Count, F, Q, Avg, Value
 from django.db.models.functions import Coalesce
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
+from django.contrib.auth.decorators import user_passes_test
+
 
 
 class VendorDashboardView(LoginRequiredMixin, TemplateView):
@@ -117,6 +119,10 @@ class VendorDashboardView(LoginRequiredMixin, TemplateView):
         return context
 
 
+def is_vendor(user):
+    return hasattr(user, 'vendor')
+
+@user_passes_test(is_vendor)
 def create_product(request):
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES)
@@ -125,7 +131,7 @@ def create_product(request):
             product.vendor = request.user.vendor  
             product.save()
             messages.success(request, 'Product created successfully!')
-            return redirect('vendor_dashboard')
+            return redirect('/vendor')
         else:
             print(form.errors)  
     else:
@@ -133,7 +139,7 @@ def create_product(request):
 
     return render(request, 'product_form.html', {'form': form}) 
 
-
+@user_passes_test(is_vendor)
 def edit_product(request, product_id):
     product = get_object_or_404(Product, id=product_id)
 
@@ -147,29 +153,17 @@ def edit_product(request, product_id):
 
     return render(request, 'vendor/edit_product.html', {'form': form, 'product': product})
 
+@user_passes_test(is_vendor)
 def delete_product(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     
     if request.method == 'POST':
         product.delete()
-        return redirect('/vendor') 
+        return redirect('/') 
 
     return render(request, 'vendor/delete_product.html', {'product': product})
 
-@csrf_exempt
-def add_category(request):
-    if request.method == 'POST':
-        name = request.POST.get('name')
-
-        if name:
-            category = Category.objects.create(name=name)  
-            return JsonResponse({'status': 'success', 'category_id': category.id})
-        else:
-            return JsonResponse({'status': 'error', 'message': 'Name is required.'}, status=400)
-
-    return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=405)
-
-
+@user_passes_test(is_vendor)
 def add_brand(request):
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -183,15 +177,21 @@ def add_brand(request):
 
     return render(request, 'add_brand.html') 
 
-@csrf_exempt  
+@user_passes_test(is_vendor)
 def add_category(request):
     if request.method == 'POST':
         name = request.POST.get('name')
-        Category.objects.create(name=name)
-        return JsonResponse({'message': 'Category added successfully!'})
-    return JsonResponse({'error': 'Error adding category'}, status=400)
+        image = request.FILES.get('image')
+
+        category = Category(name=name, image=image)
+        category.save()
+
+        return redirect('/')  
+
+    return render(request, 'add_category.html') 
 
 @csrf_exempt 
+@user_passes_test(is_vendor)
 def add_tag(request):
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -213,17 +213,86 @@ def vendor_registration_view(request):
     return render(request, 'vendor/vendor_registration.html', {'form': form})
 
 
-def brand_list(request):
-    brands = Brand.objects.all()
-    return render(request, 'vendor/brand_list.html', {'brands': brands})
+@login_required
+def attribute_dashboard(request):
+    vendor = request.user.vendor  
 
-def category_list(request):
     categories = Category.objects.all()
-    return render(request, 'vendor/category_list.html', {'categories': categories})
+    brands = Brand.objects.all()
 
-def tag_list(request):
-    tags = Tag.objects.all()
-    return render(request, 'vendor/tag_list.html', {'tags': tags})
+    offered_brands = Brand.objects.filter(product__vendor=vendor).distinct()
+    offered_categories = Category.objects.filter(product__vendor=vendor).distinct()
+
+    most_viewed_category = (
+        Category.objects.filter(product__vendor=vendor)
+        .annotate(total_views=Sum('product__view_count'))
+        .order_by('-total_views')
+        .first()
+    )
+
+    most_viewed_brand = (
+        Brand.objects.filter(product__vendor=vendor)
+        .annotate(total_views=Sum('product__view_count'))
+        .order_by('-total_views')
+        .first()
+    )
+
+    most_ordered_category = (
+        Category.objects.filter(product__vendor=vendor)
+        .annotate(total_orders=Sum('product__orderitem__quantity'))
+        .order_by('-total_orders')
+        .first()
+    )
+
+    most_ordered_brand = (
+        Brand.objects.filter(product__vendor=vendor)
+        .annotate(total_orders=Sum('product__orderitem__quantity'))
+        .order_by('-total_orders')
+        .first()
+    )
+
+    total_categories_offered = offered_categories.count()
+    total_brands_offered = offered_brands.count()
+
+    most_sold_category = (
+        Category.objects.filter(product__vendor=vendor)
+        .annotate(total_sales=Sum('product__orderitem__quantity'))
+        .order_by('-total_sales')
+        .first()
+    )
+
+    top_selling_categories = (
+        Category.objects.filter(product__vendor=vendor, product__orderitem__order__shipment_status='Delivered')
+        .annotate(total_sales=Sum('product__orderitem__quantity'))
+        .order_by('-total_sales')[:5]
+    )
+
+    top_selling_brands = (
+        Brand.objects.filter(product__vendor=vendor, product__orderitem__order__shipment_status='Delivered')
+        .annotate(total_sales=Sum('product__orderitem__quantity'))
+        .order_by('-total_sales')[:5]
+    )
+
+    context = {
+        'brands': brands,  
+        'offered_brands': offered_brands,  
+        'categories': categories,  
+        'offered_categories': offered_categories,  
+        'tags': Tag.objects.filter(product__vendor=vendor).distinct(),
+
+        'most_viewed_category': most_viewed_category,
+        'most_viewed_brand': most_viewed_brand,
+        'most_ordered_category': most_ordered_category,
+        'most_ordered_brand': most_ordered_brand,
+        'total_categories_offered': total_categories_offered,
+        'total_brands_offered': total_brands_offered,
+        'most_sold_category': most_sold_category,
+
+        'top_selling_categories': top_selling_categories,
+        'top_selling_brands': top_selling_brands,
+    }
+
+    return render(request, 'attribute_dashboard.html', context)
 
 class VendorLoginView(View):
     def get(self, request):

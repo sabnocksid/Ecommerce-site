@@ -1,47 +1,102 @@
 {% extends 'home.html' %}
 
 {% block content %}
-
-<style>
-  .card {
-    border: 1px solid #e0e0e0; /* Light border */
-}
-
-.card-header {
-    background-color: #f8f9fa; /* Light gray background */
-}
-
-.card-body {
-    background-color: #ffffff; /* White background */
-}
-
-</style>
-<div class="container mt-5">
-    <h2 class="text-center">Your Orders</h2>
-
-    {% if orders %}
-        <div class="row">
-            {% for order in orders %}
-                <div class="col-md-4 mb-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0">Order ID: {{ order.id }}</h5>
-                        </div>
-                        <div class="card-body">
-                            <p><strong>Total Amount:</strong> Rs {{ order.total_amount }}</p>
-                            <p><strong>Shipping Address:</strong> {{ order.shipping_address }}</p>
-                            <p><strong>Payment Method:</strong> {{ order.payment_method }}</p>
-                            <p><strong>Payment Status:</strong> {{ order.payment_status }}</p>
-                            <p><strong>Shipment Status:</strong> {{ order.shipment_status }}</p>
-                            <p><strong>Date:</strong> {{ order.created_at }}</p>
-                            <a href="{% url 'cart:order_detail_view' order.id %}" class="btn btn-info">View Details</a>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <p class="text-center">You have no orders yet.</p>
-    {% endif %}
+    <style>
+        .tab {
+            display: flex;
+            margin-top: 15px;
+            border-bottom: 2px solid #ddd;
+            text-align: center;
+        }
+        .tab button {
+            background-color: inherit;
+            border: none;
+            outline: none;
+            padding: 14px 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .tab button.active {
+            background-color: #ddd;
+        }
+        .tabcontent {
+            display: none;
+            padding: 20px;
+            border-top: none;
+        }
+        .tabcontent.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+<div class="tab">
+    <button class="tablinks" onclick="openTab(event, 'Pending')">To Ship</button>
+    <button class="tablinks" onclick="openTab(event, 'Shipped')">To Receive</button>
+    <button class="tablinks" onclick="openTab(event, 'Delivered')">To Review</button>
 </div>
+
+<div id="Pending" class="tabcontent" style="min-height: 900px;">
+    {% for order in pending_orders %}
+        <ul>
+            {% for item in order.items.all %}
+                <li>
+                    <img src="{{ item.product.product_image.url }}" alt="{{ item.product.name }}" style="width: 50px; height: 50px;">
+                    <strong>{{ item.product.name }}</strong> x {{ item.quantity }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% empty %}
+        <p>No pending orders.</p>
+    {% endfor %}
+</div>
+
+<div id="Shipped" class="tabcontent" style="min-height: 900px;">
+    {% for order in shipped_orders %}
+        <ul>
+            {% for item in order.items.all %}
+                <li>
+                    <img src="{{ item.product.product_image.url }}" alt="{{ item.product.name }}" style="width: 50px; height: 50px;">
+                    <strong>{{ item.product.name }}</strong> x {{ item.quantity }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% empty %}
+        <p>No shipped orders.</p>
+    {% endfor %}
+</div>
+
+<div id="Delivered" class="tabcontent" style="min-height: 900px;">
+    {% for order in delivered_orders %}
+        <ul>
+            {% for item in order.items.all %}
+                <li>
+                    <img src="{{ item.product.product_image.url }}" alt="{{ item.product.name }}" style="width: 50px; height: 50px;">
+                    <strong><a href="{% url 'product_detail' item.product.pk  %}" >{{ item.product.name }}</a></strong> x {{ item.quantity }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% empty %}
+        <p>No delivered orders without reviews.</p>
+    {% endfor %}
+</div>
+
+<script>
+    function openTab(event, tabName) {
+        var tabcontent = document.getElementsByClassName("tabcontent");
+        for (var i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].classList.remove("active");
+        }
+        var tablinks = document.getElementsByClassName("tablinks");
+        for (var i = 0; i < tablinks.length; i++) {
+            tablinks[i].classList.remove("active");
+        }
+        document.getElementById(tabName).classList.add("active");
+        event.currentTarget.classList.add("active");
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelector(".tablinks").click();
+    });
+</script>
 {% endblock %}

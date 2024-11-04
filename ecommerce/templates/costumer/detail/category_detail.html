@@ -2,24 +2,24 @@
 {% load static %}
 {% block content %}
 <div class="container my-4 mt-5">
-    <br>
-    <h2 class="text-center ">{{ category.name }}</h2>
-    <p class="text-center mb-4">{{ category.description }}</p>
+    <div class="position-relative mb-4">
+        <img src="{{ category.image.url }}" alt="{{ category.name }}" class="img-fluid mx-auto d-block">
+        <h1 class="position-absolute top-50 start-50 translate-middle text-white bg-dark p-2 rounded">{{ category.name }}</h1>
+    </div>
 
     <div class="row">
         {% for product in category_products %}
-            <div class="col-md-3 mb-4"> <!-- Adjust the column size based on your design -->
+            <div class="col-md-3 mb-4">
                 <div class="card h-100 shadow-sm">
                     <img src="{{ product.product_image.url }}" class="card-img-top" alt="{{ product.name }}">
                     <div class="card-body">
                         <h5 class="card-title">{{ product.name }}</h5>
                         <p class="card-text text-danger">
                             {% if product.on_sale %}
-                                <h4 class="text-danger">Rs {{ product.sale_price }}</h4> 
-                                <del>Rs {{ product.price }}</del>
-                                <span class="text-success"> ({{ discount_percentage }}% off)</span>
+                                <span class="text-danger font-weight-bold">Rs {{ product.sale_price }}</span> 
+                                <del class="text-secondary">Rs {{ product.price }}</del>
                             {% else %}
-                                <h6 class="text-primary">Rs {{ product.price }}</h6>
+                                <span class="text-primary font-weight-bold">Rs {{ product.price }}</span>
                             {% endif %}
                         </p>
                     </div>
@@ -35,4 +35,26 @@
         {% endfor %}
     </div>
 </div>
+
+<style>
+    .position-relative {
+        position: relative;
+    }
+    .position-absolute {
+        position: absolute;
+        color: white; /* Text color */
+        text-align: center;
+        z-index: 1; /* Ensure the text is above the image */
+    }
+    .bg-dark {
+        background-color: rgba(0, 0, 0, 0.6); /* Dark background for better contrast */
+    }
+    .p-2 {
+        padding: 0.5rem; /* Padding around the text */
+    }
+    .rounded {
+        border-radius: 0.25rem; /* Rounded corners for the background */
+    }
+</style>
+
 {% endblock content %}
