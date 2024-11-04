@@ -29,8 +29,14 @@
             <img src="{{ product.product_image.url }}" class="card-img-top" alt="{{ product.name }}">
             <div class="card-body">
                 <h5 class="card-title">{{ product.name }}</h5>
-                <p class="card-text">Price: ${{ product.price }}</p>
-            </div>
+                <p class="card-text text-danger">
+                    {% if product.on_sale %}
+                        <h4 class="text-danger">Rs {{ product.sale_price }}</h4> 
+                        <del>Rs {{ product.price }}</del>
+                    {% else %}
+                        <h4 class="text-danger">Rs {{ product.price }}</h4>
+                    {% endif %}
+                </p>            </div>
             <div class="card-footer text-center">
                 <a href="{% url 'product_detail' product.id %}" class="btn btn-primary">View Product</a>
             </div>

@@ -1,102 +1,76 @@
 {% extends 'home.html' %}
 
 {% block content %}
-    <style>
-        .tab {
-            display: flex;
-            margin-top: 15px;
-            border-bottom: 2px solid #ddd;
-            text-align: center;
-        }
-        .tab button {
-            background-color: inherit;
-            border: none;
-            outline: none;
-            padding: 14px 16px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .tab button.active {
-            background-color: #ddd;
-        }
-        .tabcontent {
-            display: none;
-            padding: 20px;
-            border-top: none;
-        }
-        .tabcontent.active {
-            display: block;
-        }
-    </style>
-</head>
-<body>
-<div class="tab">
-    <button class="tablinks" onclick="openTab(event, 'Pending')">To Ship</button>
-    <button class="tablinks" onclick="openTab(event, 'Shipped')">To Receive</button>
-    <button class="tablinks" onclick="openTab(event, 'Delivered')">To Review</button>
-</div>
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 
-<div id="Pending" class="tabcontent" style="min-height: 900px;">
-    {% for order in pending_orders %}
-        <ul>
-            {% for item in order.items.all %}
-                <li>
-                    <img src="{{ item.product.product_image.url }}" alt="{{ item.product.name }}" style="width: 50px; height: 50px;">
-                    <strong>{{ item.product.name }}</strong> x {{ item.quantity }}
-                </li>
+<div class="container mt-5">
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="pending-tab" data-toggle="tab" href="#Pending" role="tab" aria-controls="Pending" aria-selected="true">To Ship</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="shipped-tab" data-toggle="tab" href="#Shipped" role="tab" aria-controls="Shipped" aria-selected="false">To Receive</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="delivered-tab" data-toggle="tab" href="#Delivered" role="tab" aria-controls="Delivered" aria-selected="false">To Review</a>
+        </li>
+    </ul>
+    
+    <div class="tab-content mt-3" id="myTabContent" style="min-height: 900px;">
+        <div class="tab-pane fade show active" id="Pending" role="tabpanel" aria-labelledby="pending-tab">
+            {% for order in pending_orders %}
+                <ul class="list-unstyled">
+                    {% for item in order.items.all %}
+                        <li class="media">
+                            <img src="{{ item.product.product_image.url }}" alt="{{ item.product.name }}" class="mr-3" style="width: 50px; height: 50px;">
+                            <div class="media-body">
+                                <strong><a href="{% url 'cart:order_detail_view' item.order_id %}">{{ item.product.name }}</a></strong> x {{ item.quantity }}
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% empty %}
+                <p>No pending orders.</p>
             {% endfor %}
-        </ul>
-    {% empty %}
-        <p>No pending orders.</p>
-    {% endfor %}
-</div>
+        </div>
 
-<div id="Shipped" class="tabcontent" style="min-height: 900px;">
-    {% for order in shipped_orders %}
-        <ul>
-            {% for item in order.items.all %}
-                <li>
-                    <img src="{{ item.product.product_image.url }}" alt="{{ item.product.name }}" style="width: 50px; height: 50px;">
-                    <strong>{{ item.product.name }}</strong> x {{ item.quantity }}
-                </li>
+        <div class="tab-pane fade" id="Shipped" role="tabpanel" aria-labelledby="shipped-tab">
+            {% for order in shipped_orders %}
+                <ul class="list-unstyled">
+                    {% for item in order.items.all %}
+                        <li class="media">
+                            <img src="{{ item.product.product_image.url }}" alt="{{ item.product.name }}" class="mr-3" style="width: 50px; height: 50px;">
+                            <div class="media-body">
+                                <strong><a href="{% url 'cart:order_detail_view' item.order_id %}">{{ item.product.name }}</a></strong> x {{ item.quantity }}
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% empty %}
+                <p>No shipped orders.</p>
             {% endfor %}
-        </ul>
-    {% empty %}
-        <p>No shipped orders.</p>
-    {% endfor %}
-</div>
+        </div>
 
-<div id="Delivered" class="tabcontent" style="min-height: 900px;">
-    {% for order in delivered_orders %}
-        <ul>
-            {% for item in order.items.all %}
-                <li>
-                    <img src="{{ item.product.product_image.url }}" alt="{{ item.product.name }}" style="width: 50px; height: 50px;">
-                    <strong><a href="{% url 'product_detail' item.product.pk  %}" >{{ item.product.name }}</a></strong> x {{ item.quantity }}
-                </li>
+        <div class="tab-pane fade" id="Delivered" role="tabpanel" aria-labelledby="delivered-tab">
+            {% for order in delivered_orders %}
+                <ul class="list-unstyled">
+                    {% for item in order.items.all %}
+                        <li class="media">
+                            <img src="{{ item.product.product_image.url }}" alt="{{ item.product.name }}" class="mr-3" style="width: 50px; height: 50px;">
+                            <div class="media-body">
+                                <strong><a href="{% url 'product_detail' item.product.pk %}">{{ item.product.name }}</a></strong> x {{ item.quantity }}
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% empty %}
+                <p>No delivered orders without reviews.</p>
             {% endfor %}
-        </ul>
-    {% empty %}
-        <p>No delivered orders without reviews.</p>
-    {% endfor %}
+        </div>
+    </div>
 </div>
 
-<script>
-    function openTab(event, tabName) {
-        var tabcontent = document.getElementsByClassName("tabcontent");
-        for (var i = 0; i < tabcontent.length; i++) {
-            tabcontent[i].classList.remove("active");
-        }
-        var tablinks = document.getElementsByClassName("tablinks");
-        for (var i = 0; i < tablinks.length; i++) {
-            tablinks[i].classList.remove("active");
-        }
-        document.getElementById(tabName).classList.add("active");
-        event.currentTarget.classList.add("active");
-    }
-
-    document.addEventListener("DOMContentLoaded", function () {
-        document.querySelector(".tablinks").click();
-    });
-</script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 {% endblock %}

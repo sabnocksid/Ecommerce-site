@@ -1,116 +1,141 @@
 {% load static %}
-<footer>
-    <div class="container">
-        <div class="row col-md-12">
-            <div class="col-md-2">
-                <h5>Categories</h5>
-                <ul >
-                    {% for category in categories %}
-                    <li>
-                      <a  href="{% url 'category_detail' category.id %}" onclick="changeDropdownText('{{ category.name }}')">{{ category.name }}</a>
-                    </li>
-                    {% empty %}
-                    <li><a href="#">No categories available</a></li>
-                    {% endfor %}
-                  </ul>
-            </div>
+{% block content %}
+<div class="footer-container">
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-2">
+                    <h5>Categories</h5>
+                    <ul>
+                        {% for category in categories %}
+                        <li>
+                            <a href="{% url 'category_detail' category.id %}">{{ category.name }}</a>
+                        </li>
+                        {% endfor %}
+                        {% if not categories %}
+                        <li><a href="#">No categories available</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
 
-            <div class="col-md-2 mb-4">
-                <h5>Trending Products</h5>
-                <ul >
-                    {% for product in trending_products %}
-                    <li>
-                      <a  href="{% url 'product_detail' product.id %}" onclick="changeDropdownText('{{ product.name }}')">{{ product.name }}</a>
-                    </li>
-                    {% empty %}
-                    <li><a href="#">No products available</a></li>
-                    {% endfor %}
-                  </ul>
-            </div>
-            <div class="col-md-2 mb-4">
-                <h5>latest Products</h5>
-                <ul >
-                    {% for product in latest_products %}
-                    <li>
-                      <a  href="{% url 'product_detail' product.id %}" onclick="changeDropdownText('{{ product.name }}')" >{{ product.name }}</a>
-                    </li>
-                    {% empty %}
-                    <li><a href="#">No Product available</a></li>
-                    {% endfor %}
-                  </ul>
-            </div>
-            <div class="col-md-2 mb-4">
-                <h5>Shops</h5>
-                <ul class="list-unstyled">
-                    {% for vendor in vendors %}
-                    <li>
-                        <a href="{% url 'store_detail' vendor.pk %}" onclick="changeDropdownText('{{ vendor.business_name }}')">{{ vendor.business_name }}</a>
-                    </li>
-                    {% empty %}
-                    <li><a href="#" class="text-primary">No shops available</a></li>
-                    {% endfor %}
-                </ul>
-            </div>
-            <div class="col-md-4 mb-4">
-            <form method="GET" action="{% url 'search' %}" class="search-form">
-                <h4 class="text-primary">Search Products</h4>
-                <input type="text" name="query" placeholder="Search for products" required>
-                <button type="submit">Search</button>
-              </form>
-            </div> 
-            
-            <div class="col-md-3 mb-4 ">
-                <h5>Follow Us</h5>
-                <ul class="list-unstyled d-flex">
-                    <li class="me-3">
-                        <a href="#" class="text-primary">
-                            <i class="fab fa-facebook-f"></i>
-                        </a>
-                    </li>
-                    <li class="me-3">
-                        <a href="#" class="text-primary">
-                            <i class="fab fa-twitter"></i>
-                        </a>
-                    </li>
-                    <li class="me-3">
-                        <a href="#" class="text-primary">
-                            <i class="fab fa-instagram"></i>
-                        </a>
-                    </li>
-                    <li class="me-3">
-                        <a href="#" class="text-primary">
-                            <i class="fab fa-linkedin-in"></i>
-                        </a>
-                    </li>
-                </ul>
+                <div class="col-md-2 mb-4">
+                    <h5>Trending Products</h5>
+                    <ul>
+                        {% for product in trending_products %}
+                        <li>
+                            <a href="{% url 'product_detail' product.id %}" onclick="changeDropdownText('{{ product.name }}')">{{ product.name }}</a>
+                        </li>
+                        {% endfor %}
+                        {% if not trending_products %}
+                        <li><a href="#">No products available</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+
+                <div class="col-md-2 mb-4">
+                    <h5>Latest Products</h5>
+                    <ul>
+                        {% for product in latest_products %}
+                        <li>
+                            <a href="{% url 'product_detail' product.id %}" onclick="changeDropdownText('{{ product.name }}')">{{ product.name }}</a>
+                        </li>
+                        {% endfor %}
+                        {% if not latest_products %}
+                        <li><a href="#">No products available</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+
+                <div class="col-md-2 mb-4">
+                    <h5>Shops</h5>
+                    <ul class="list-unstyled">
+                        {% for vendor in vendors %}
+                        <li>
+                            <a href="{% url 'store_detail' vendor.pk %}" onclick="changeDropdownText('{{ vendor.business_name }}')">{{ vendor.business_name }}</a>
+                        </li>
+                        {% endfor %}
+                        {% if not vendors %}
+                        <li><a href="#" class="text-primary">No shops available</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+
+                <div class="col-md-4 mb-4">
+                    <form method="GET" action="{% url 'search' %}" class="search-form">
+                        <h4 class="text-primary">Search Products</h4>
+                        <input type="text" name="query" placeholder="Search for products" required>
+                        <button type="submit">Search</button>
+                    </form>
+                </div> 
+                
+                <div class="col-md-3 mb-4">
+                    <h5>Follow Us</h5>
+                    <ul class="list-unstyled d-flex">
+                        <li class="me-3">
+                            <a href="#" class="text-primary" aria-label="Facebook">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                        </li>
+                        <li class="me-3">
+                            <a href="#" class="text-primary" aria-label="Twitter">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                        </li>
+                        <li class="me-3">
+                            <a href="#" class="text-primary" aria-label="Instagram">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                        </li>
+                        <li class="me-3">
+                            <a href="#" class="text-primary" aria-label="LinkedIn">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
-    </div>
-</footer>
+    </footer>
+</div>
+{% endblock content %}
 
 <script>
-    const backToTopButton = document.getElementById('backToTop');
-    window.onscroll = function() {
-        if (document.body.scrollTop > 50 || document.documentElement.scrollTop > 50) {
-            backToTopButton.style.display = "block";
-        } else {
-            backToTopButton.style.display = "none";
-        }
-    };
+    document.addEventListener('DOMContentLoaded', function() {
+        const backToTopButton = document.getElementById('backToTop');
 
-    backToTopButton.addEventListener('click', function() {
-        window.scrollTo({top: 0, behavior: 'smooth'});
+        if (backToTopButton) {
+            window.onscroll = function() {
+                if (document.body.scrollTop > 50 || document.documentElement.scrollTop > 50) {
+                    backToTopButton.style.display = "block";
+                } else {
+                    backToTopButton.style.display = "none";
+                }
+            };
+
+            backToTopButton.addEventListener('click', function() {
+                window.scrollTo({top: 0, behavior: 'smooth'});
+            });
+        }
     });
 </script>
 
 <style>
-
-
-    .content {
-        padding-bottom: 20px; /* Adds some space at the bottom */
+    .footer-container .container {
+        margin-top: 100px;
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
     }
 
-    footer {
+    .footer-container .search-form {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 10px;
+    }
+    
+    .footer-container footer {
         position: relative;
         background: #d8d8d8;
         bottom: 0;
@@ -118,14 +143,33 @@
         padding: 20px 0;
     }
 
+    .footer-container .search-form input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 16px;
+    }
+
+    .footer-container .search-form button {
+        width: 100%;
+        padding: 10px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 16px;
+        transition: background-color 0.3s;
+    }
+
+    .footer-container .search-form button:hover {
+        background-color: #0056b3;
+    }
+
     @media (min-width: 1920px) {
         body {
             margin-bottom: 40px;
         }
     }
-
-    #backToTop {
-        display: none; /* Hidden by default */
-    }
 </style>
-

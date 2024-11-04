@@ -68,10 +68,46 @@
                                 <li><a class="dropdown-item" href="#categories">Categories</a></li>
                                 <li><a class="dropdown-item" href="#recommended-products">For You</a></li>
                                 <li><a class="dropdown-item" href="#latest-products">Latest</a></li>
-
                             </ul>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Shop
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="userDropdown">
+                                    <li><a class="dropdown-item" href="{% url 'vendor:vendor_login' %}">Log in</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'vendor:vendor_login' %}">Register</a></li>
+                                </ul>
+                            </li>
                         {% else %}
                             <a class="nav-link" href="{% url 'home' %}">Home</a>
+                            <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="categoryDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                              Categories
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="categoryDropdown">
+                                {% for category in categories %}
+                                <li>
+                                  <a class="dropdown-item" href="{% url 'category_detail' category.id %}" onclick="changeDropdownText('{{ category.name }}')">{{ category.name }}</a>
+                                </li>
+                                {% empty %}
+                                <li><a class="dropdown-item" href="#">None</a></li>
+                                {% endfor %}
+                            </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="brandDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                              Brands
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="brandDropdown">
+                                {% for brand in brands %}
+                                <li>
+                                  <a class="dropdown-item" href="{% url 'brand_products' brand.pk %}" onclick="changeDropdownText('{{ brand.name }}')">{{ brand.name }}</a>
+                                </li>
+                                {% empty %}
+                                <li><a class="dropdown-item" href="#">None</a></li>
+                                {% endfor %}
+                            </ul>
+                            </li>
                         {% endif %}
                     </li>
                 </ul>
@@ -96,15 +132,7 @@
                 </li>
                 {% endif %}
 
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Seller
-                    </a>
-                    <ul class="dropdown-menu" aria-labelledby="userDropdown">
-                        <li><a class="dropdown-item" href="{% url 'vendor:vendor_login' %}">Log in</a></li>
-                        <li><a class="dropdown-item" href="{% url 'vendor:vendor_login' %}">Register</a></li>
-                    </ul>
-                </li>
+
             </ul>
 
 
@@ -114,28 +142,26 @@
             <button class="btn btn-link" id="CartBtn">
                 <a href="{% url 'cart:cart_detail' %}" class="text-decoration-none">
                     <i class="fas fa-shopping-cart"></i>
-                    <span class="cart-length-badge" id="cart-length">0</span> <!-- Cart length -->
+                    <span class="cart-length-badge" id="cart-length">{{ cart_length }}</span>
                 </a>
             </button>
         </div>
     </div>
 </nav>
 
-<script>
-    function updateCartLength() {
-        $.ajax({
-            url: "{% url 'cart:cart_length' %}", 
-            method: "GET",
-            success: function(data) {
-                $('#cart-length').text(data.cart_length);  // Update an element with the cart length
-            },
-            error: function(xhr, status, error) {
-                console.error("Error fetching cart length: ", error);
-            }
-        });
-    }
 
-    $(document).ready(function() {
-        updateCartLength();
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        function updateCartLength() {
+            fetch("{% url 'cart:cart_length' %}") 
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("cart-length").innerText = data.cart_length;
+                })
+                .catch(error => console.error("Error updating cart length:", error));
+        }
+    
+        setInterval(updateCartLength, 100);
     });
-</script>
+    </script>

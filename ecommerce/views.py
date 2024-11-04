@@ -1,7 +1,7 @@
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import CreateView, ListView, TemplateView, DetailView
-from .models import Product, Category, Customer, Tag, Offer, Review, Vendor
+from .models import Product, Category, Customer, Tag, Offer, Review, Vendor, Brand
 from cart.models import OrderItem
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
@@ -54,8 +54,8 @@ class HomeView(TemplateView):
         context['sale_products'] = sale_products
         context['categories'] = Category.objects.all()
         context['vendors'] = Vendor.objects.all()
-        context['latest_products'] = Product.objects.order_by('-created_at')[:5]
-        context['trending_products'] = Product.objects.filter(on_sale=True).order_by('-view_count')[:5]
+        context['latest_products'] = Product.objects.order_by('-created_at')[:6]
+        context['trending_products'] = Product.objects.filter(on_sale=True).order_by('-view_count')[:6]
 
         return context
 
@@ -132,13 +132,14 @@ class BrandView(ListView):
     context_object_name = 'products'
 
     def get_queryset(self):
-        product = get_object_or_404(Product, pk=self.kwargs['pk'])
-        return Product.objects.filter(brand=product.brand)
+        # Instead of getting a product, get the brand by the product ID from the URL
+        brand_id = self.kwargs['pk']  # Assuming the pk in URL is for brand ID
+        return Product.objects.filter(brand__id=brand_id)  # Filter products by brand
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        product = get_object_or_404(Product, pk=self.kwargs['pk'])
-        brand = product.brand
+        brand_id = self.kwargs['pk']
+        brand = get_object_or_404(Brand, id=brand_id)  # Get the brand directly
         context['brand_name'] = brand.name
         context['brand_image'] = brand.image.url if brand.image else None
         context['brand_description'] = brand.description

@@ -130,7 +130,7 @@ def create_order(request):
                 total_amount=total_amount,
                 shipping_address=shipping_address,
                 payment_method=payment_method,
-                payment_status='Pending'  # Set initial status
+                payment_status='Pending'  
             )
             
             for item in cart:
