@@ -28,3 +28,7 @@ class SignupForm(UserCreationForm):
         return user
 
 
+class CustomerForm(forms.ModelForm):
+    class Meta:
+        model = Customer
+        fields = ['address', 'city', 'phone_number', 'postal_code']

@@ -1,0 +1,28 @@
+{% extends "home.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+    <div class="card" style="width: 28rem;">
+        <img src="{% static 'images/avatar.png' %}" class="card-img-top" alt="Profile Picture">
+        <div class="card-body">
+            <p class="card-text"><strong>Username: </strong>{{ user.username }}</p>
+            <p class="card-text"><strong>Email: </strong>{{ user.email }}</p>
+            
+            {% if customer %}
+                <p class="card-text"><strong>Address:</strong> {{ customer.address }}</p>
+                <p class="card-text"><strong>City:</strong> {{ customer.city }}</p>
+                <p class="card-text"><strong>Phone Number:</strong> {{ customer.phone_number }}</p>
+                <p class="card-text"><strong>Postal Code:</strong> {{ customer.postal_code }}</p>
+            {% else %}
+                <p>No additional profile information available.</p>
+            {% endif %}
+
+        </div>
+        <div class="card-body">
+          <a href="{% url 'edit_profile' %}" class="btn btn-warning">Edit Profile</a>
+          <a href="{% url 'password_reset' %}" class="btn btn-primary">Reset Password</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

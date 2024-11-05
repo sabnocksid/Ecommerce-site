@@ -8,7 +8,7 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
 from django.contrib.auth import views as auth_views
-from .forms import SignupForm
+from .forms import SignupForm, CustomerForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
@@ -132,14 +132,13 @@ class BrandView(ListView):
     context_object_name = 'products'
 
     def get_queryset(self):
-        # Instead of getting a product, get the brand by the product ID from the URL
-        brand_id = self.kwargs['pk']  # Assuming the pk in URL is for brand ID
-        return Product.objects.filter(brand__id=brand_id)  # Filter products by brand
+        brand_id = self.kwargs['pk']  
+        return Product.objects.filter(brand__id=brand_id)  
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         brand_id = self.kwargs['pk']
-        brand = get_object_or_404(Brand, id=brand_id)  # Get the brand directly
+        brand = get_object_or_404(Brand, id=brand_id)  
         context['brand_name'] = brand.name
         context['brand_image'] = brand.image.url if brand.image else None
         context['brand_description'] = brand.description
@@ -214,6 +213,7 @@ def signup_view(request):
 
 class CustomLoginView(auth_views.LoginView):
     template_name = 'login.html'
+    
 
 def custom_logout_view(request):
     logout(request)
@@ -259,7 +259,6 @@ def search_view(request):
     sort_by = request.GET.get('sort_by', '')  # Sorting can be 'price', 'view_count', 'orders', or 'on_sale'
     on_sale = request.GET.get('on_sale', '')  # Filtering for on_sale
 
-    # Start with a base product queryset
     products = Product.objects.all()
 
     if query:
@@ -294,15 +293,12 @@ def search_view(request):
         products = products.filter(on_sale=True)  # Filter products on sale
         products = products.order_by('price')  # Sort on-sale products by price
 
-    # Default ordering by match score if no sort is specified
     if not sort_by:
         products = products.order_by('-match_score')
 
-    # Default ordering by match score if no sort is specified
     if not sort_by:
         products = products.order_by('-match_score')
 
-    # Check if the request is AJAX
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         product_list = [{
             'id': product.id,
@@ -313,7 +309,6 @@ def search_view(request):
 
         return JsonResponse({'products': product_list})
 
-    # Retrieve all categories for display in the template
     categories = Category.objects.all()
 
     context = {
@@ -327,3 +322,38 @@ def search_view(request):
     }
 
     return render(request, 'search_results.html', context)
+
+
+
+@login_required
+def UserProfileView(request):
+    user = request.user
+    try:
+        customer = Customer.objects.get(user=user)
+    except Customer.DoesNotExist:
+        customer = None  
+
+    context = {
+        'user': user,
+        'customer': customer,
+    }
+    return render(request, 'user_profile.html', context)
+
+
+
+@login_required
+def edit_profile(request):
+    try:
+        customer = request.user.customer  
+    except Customer.DoesNotExist:
+        customer = None
+
+    if request.method == 'POST':
+        form = CustomerForm(request.POST, instance=customer)
+        if form.is_valid():
+            form.save()  
+            return redirect('user-profile')  
+    else:
+        form = CustomerForm(instance=customer)  
+
+    return render(request, 'edit_profile.html', {'form': form})

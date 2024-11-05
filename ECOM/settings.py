@@ -144,18 +144,24 @@ AUTHENTICATION_BACKENDS = [
 LOGIN_REDIRECT_URL = 'home'  
 LOGOUT_REDIRECT_URL = 'home'  
 
+# Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
-
-# Additional directories to search for static files
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'ecommerce', 'static')]
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media') 
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-STATIC_URL = '/static/'
+# Authentication and redirect settings
+LOGIN_REDIRECT_URL = 'home'  
+LOGOUT_REDIRECT_URL = 'home'
+LOGIN_URL = '/login/'
 
-LOGIN_URL = '/accounts/login/'
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
+# Email configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'sidharthpoudel04@gmail.com'
+EMAIL_HOST_PASSWORD = 'nrcp jrha znqq lypd'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

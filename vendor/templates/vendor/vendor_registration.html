@@ -1,4 +1,4 @@
-{% extends 'vendor_dashboard.html' %}
+{% extends 'vendor/vendor_dashboard.html' %}
 
 {% block content %}
 <div class="container mt-5">
@@ -57,7 +57,7 @@
         <button type="submit" id="vendorSignUp" class="btn btn-primary btn-lg btn-block">Register as Vendor</button>
     </form>
     
-    <p class="mt-3 text-center">Already have an account? <a href="{% url 'login' %}">Log in</a></p>
+    <p class="mt-3 text-center">Already have an account? <a href="{% url 'vendor:vendor_login' %}">Log in</a></p>
 </div>
 
 <!-- Optional: Add some custom styles -->
@@ -74,9 +74,9 @@
     }
 
     #vendorSignUp {
-        border-radius: 0.5rem; /* Rounded button borders */
-        padding: 15px; /* More padding */
-        font-size: 18px; /* Larger font size for the button */
+        border-radius: 0.5rem; 
+        padding: 15px; 
+        font-size: 18px; 
         width: 100%;
     }
 

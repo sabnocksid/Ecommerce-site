@@ -9,7 +9,7 @@ from django.core.exceptions import PermissionDenied
 from django.contrib.auth.mixins import LoginRequiredMixin
 from ecommerce.models import Product, Vendor, Category, Tag, Brand, Customer
 from cart.models import Order, OrderItem
-from .forms import ProductForm, VendorRegistrationForm
+from .forms import ProductForm, VendorRegistrationForm, BrandForm
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.db.models import Sum, Count, F, Q, Avg, Value
@@ -159,7 +159,7 @@ def delete_product(request, product_id):
     
     if request.method == 'POST':
         product.delete()
-        return redirect('/') 
+        return redirect('/vendor') 
 
     return render(request, 'vendor/delete_product.html', {'product': product})
 
@@ -173,7 +173,7 @@ def add_brand(request):
         brand = Brand(name=name, image=image, description=description)
         brand.save()
 
-        return redirect('/')  
+        return redirect('/vendor/attribute_dashboard')  
 
     return render(request, 'add_brand.html') 
 
@@ -186,7 +186,7 @@ def add_category(request):
         category = Category(name=name, image=image)
         category.save()
 
-        return redirect('/')  
+        return redirect('/vendor/attribute_dashboard')  
 
     return render(request, 'add_category.html') 
 
@@ -304,8 +304,8 @@ class VendorLoginView(View):
         user = authenticate(request, username=username, password=password)
         
         if user is not None:
-            login(request, user)
             vendor = Vendor.objects.get(user=user)
+            login(request, user)
             request.session['vendor_name'] = vendor.business_name
             messages.success(request, 'Logged in successfully!')
             return redirect('/vendor')  

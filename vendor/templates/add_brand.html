@@ -1,34 +1,58 @@
 {% extends 'vendor/vendor_dashboard.html' %}
 {% load static %}
-{% load form_extras %}
-
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-    <title>Add Category</title>
+    <title>Add Brand</title>
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
     {% block content %}
     <div class="container mt-5 pt-4">
-        <h2 class="text-center">Add New Category</h2>
+        <h2 class="text-center">Add New Brand</h2>
 
-        <form method="post" enctype="multipart/form-data" class="border p-4 rounded shadow-sm bg-light" action="{% url 'vendor:add_category' %}">
+        <form method="post" enctype="multipart/form-data" class="border p-4 rounded shadow-sm bg-light" action="{% url 'vendor:add_brand' %}">
             {% csrf_token %}
-            <div class="row">
-                <div class="form-group col-md-6">
-                    <label for="id_name">Category Name</label>
-                    <input type="text" id="id_name" name="name" class="form-control" required>
-                </div>
-                <div class="form-group col-md-6">
-                    <label for="id_image">Category Image</label>
-                    <input type="file" id="id_image" name="image" class="form-control" accept="image/*" required>
-                </div>
+            <div class="form-group">
+                <label for="id_name">Brand Name</label>
+                <input type="text" id="id_name" name="name" class="form-control" required>
+                {% if form.name.errors %}
+                    <div class="text-danger">
+                        {% for error in form.name.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
             </div>
-            <button type="submit" class="btn btn-primary">Add Category</button>
-            <a href="{% url 'vendor:category_list' %}" class="btn btn-secondary">Back to Category List</a>
+
+            <div class="form-group">
+                <label for="id_image">Brand Image</label>
+                <input type="file" id="id_image" name="image" class="form-control" accept="image/*" required>
+                {% if form.image.errors %}
+                    <div class="text-danger">
+                        {% for error in form.image.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="id_description">Brand Description</label>
+                <textarea id="id_description" name="description" class="form-control" rows="4" required></textarea>
+                {% if form.description.errors %}
+                    <div class="text-danger">
+                        {% for error in form.description.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="btn btn-primary">Add Brand</button>
+            <a href="{% url 'vendor:attribute_dashboard' %}" class="btn btn-secondary">Cancel</a>
         </form>
     </div>
     {% endblock %}
