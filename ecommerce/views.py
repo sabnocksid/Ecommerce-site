@@ -27,15 +27,17 @@ class HomeView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user = self.request.user
 
-        if user.is_authenticated:
-            order_items = OrderItem.objects.filter(order__user=user).values_list('product__category', flat=True).distinct()
-        else:
-            order_items = OrderItem.objects.none()
-
-        if order_items.exists():
-            context['recommended_products'] = Product.objects.filter(category__in=order_items).distinct()
+        if self.request.user.is_authenticated:
+            customer_user = Customer.objects.filter(user=self.request.user).first()
+            if customer_user:
+                order_items = OrderItem.objects.filter(order__user=self.request.user).values_list('product__category', flat=True).distinct()
+                if order_items.exists():
+                    context['recommended_products'] = Product.objects.filter(category__in=order_items).distinct()
+                else:
+                    context['recommended_products'] = Product.objects.none()
+            else:
+                context['recommended_products'] = Product.objects.none()
         else:
             context['recommended_products'] = Product.objects.none()
 
@@ -49,7 +51,7 @@ class HomeView(TemplateView):
         for product in sale_products:
             if product.sale_price and product.price:  
                 discount_percentage = ((product.price - product.sale_price) / product.price) * 100
-                product.discount_percentage = round(discount_percentage, 2)  
+                product.discount_percentage = round(discount_percentage, 2)
 
         context['sale_products'] = sale_products
         context['categories'] = Category.objects.all()
